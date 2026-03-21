@@ -4,17 +4,23 @@ function totalDotsForFight(type){return roundsToWinForFight(type);}
 
 function updateHUD(){
   if(!player||!enemy)return;
-  UI.php.style.width=Math.max(0,(player.hp/player.maxHp)*100)+'%';
-  UI.ehp.style.width=Math.max(0,(enemy.hp/enemy.maxHp)*100)+'%';
+  const playerRatio=Math.max(0,(player.hp/player.maxHp));
+  const enemyRatio=Math.max(0,(enemy.hp/enemy.maxHp));
+  UI.php.style.width=(playerRatio*100)+'%';
+  UI.ehp.style.width=(enemyRatio*100)+'%';
+  hudController?.animateGhost('p-hp-ghost', playerRatio);
+  hudController?.animateGhost('e-hp-ghost', enemyRatio);
   UI.prage.style.width=player.rage+'%';
   UI.pstam.style.width=(player.stamina/player.maxStam)*100+'%';
   UI.pstam.style.background=player.stamina<30?'linear-gradient(90deg,#400,#800)':'linear-gradient(90deg,#006080,#00e5ff)';
   const ready=player.rage>=100&&!player.rageActive;
-  UI.btnRage.className=player.rageActive?'active':(ready?'ready':'');
-  UI.rlbl.innerText=rageMode2?'▶ RAGE II READY':'▶ RAGE READY';
-  UI.rlbl.style.display=ready?'block':'none';
+  UI.btnRage.className='rage-trigger '+(player.rageActive?'active':(ready?'ready':''));
+  UI.rlbl.innerText=rageMode2?'Rage II Ready':'Rage Ready';
+  UI.rlbl.style.display='block';
+  UI.slbl.innerText=player.stamina<30?'Critical':'Stable';
   UI.timer.innerText=timeLeft;UI.timer.style.color=timeLeft<=10?varRed():'#fff';
   UI.roundLbl.innerText=`ROUND ${curRound}`;
+  hudController?.setPlateLabels(getWeaponProfile(getFighterWeaponId(player)).name, getWeaponProfile(getFighterWeaponId(enemy)).name);
 }
 
 function initFight(type){fType=type;pWins=0;eWins=0;clearPendingFight();resetDots();startRound(1);}

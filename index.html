@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <title>CHUGDOW FIGHT: SHADOW OF FAME</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="src/styles/game.css"/>
 </head>
 <body>
@@ -23,411 +23,293 @@
 <div id="rage-overlay"></div>
 <canvas id="game"></canvas>
 
-<div id="global-coins">🪙 <span id="coin-val">0</span></div>
-<button id="btn-ingame-menu" onclick="quitToMenu()">◀ MENU</button>
-
-<!-- MENU -->
-<div id="menu-screen" class="screen active-screen">
-  <div class="menu-logo">
-    <div class="menu-logo-top">CHUGDOW FIGHT</div>
-    <h1 class="menu-title">SHADOW<span>OF FAME</span></h1>
+<div id="ui-shell">
+  <div id="top-chrome" class="top-chrome">
+    <button id="btn-ingame-menu" class="chrome-btn" type="button">◀ Menu</button>
+    <div id="part-indicator" class="part-indicator"></div>
+    <div id="global-coins" class="currency-pill">🪙 <span id="coin-val">0</span></div>
   </div>
-  <div class="menu-divider"></div>
-  <div class="menu-subtitle">SHADOW SYSTEM ACTIVE</div>
-  <button class="menu-btn" onclick="continueGame()"><span class="btn-icon">▶</span>CONTINUE</button>
-  <button class="menu-btn" id="btn-new-game" onclick="newGame()"><span class="btn-icon">✦</span>NEW GAME</button>
-  <button class="menu-btn" onclick="openChapterSelect()"><span class="btn-icon">◉</span>CHAPTERS</button>
-  <button class="menu-btn" onclick="openShop()"><span class="btn-icon">⚔</span>ARMORY</button>
-  <button class="menu-btn" onclick="openSettings()"><span class="btn-icon">⚙</span>SETTINGS</button>
-</div>
 
-<!-- ACT SELECT (main) -->
-<div id="chapter-screen" class="screen">
-  <div class="chapter-wrap">
-    <div class="chapter-header">SELECT ACT</div>
-    <div class="chapter-divider"></div>
+  <div id="menu-screen" class="screen active-screen screen-menu">
+    <div class="menu-atmosphere"></div>
+    <div class="menu-layout">
+      <section class="hero-panel ui-panel cinematic-panel">
+        <div class="eyebrow">Shadow System // Build 04</div>
+        <div class="menu-logo-block">
+          <div class="menu-logo-top">CHUGDOW FIGHT</div>
+          <h1 class="menu-title">SHADOW <span>OF FAME</span></h1>
+          <p class="menu-tagline">A cinematic martial-arts descent through fractured memory, identity, and survival.</p>
+        </div>
+        <div class="menu-feature-strip">
+          <div class="feature-chip"><span>Acts</span><strong>02</strong></div>
+          <div class="feature-chip"><span>Weapons</span><strong>07</strong></div>
+          <div class="feature-chip"><span>Style</span><strong>Shadow Duel</strong></div>
+        </div>
+      </section>
 
-    <!-- ACT I -->
-    <div class="chapter-card" id="act1-card" onclick="openAct(1)">
-      <div class="chap-num">I</div>
-      <div class="chap-info">
-        <div class="chap-title">ACT I — SHADOW OF FAME</div>
-        <div class="chap-sub">Parts 1 — 10 · The Fall through Erasure</div>
-        <div class="chap-parts" id="act1-dots">
-          <span class="chap-dot" id="cdot1">●</span>
-          <span class="chap-dot" id="cdot2">●</span>
-          <span class="chap-dot" id="cdot3">●</span>
-          <span class="chap-dot" id="cdot4">●</span>
-          <span class="chap-dot" id="cdot5">●</span>
-          <span style="color:rgba(200,147,26,0.2);margin:0 3px;">·</span>
-          <span class="chap-dot" id="cdot6">●</span>
-          <span class="chap-dot" id="cdot7">●</span>
-          <span class="chap-dot" id="cdot8">●</span>
-          <span class="chap-dot" id="cdot9">●</span>
-          <span class="chap-dot" id="cdot10">●</span>
+      <section class="menu-actions-panel ui-panel">
+        <div class="panel-heading-block">
+          <div class="panel-kicker">Main Flow</div>
+          <h2>Enter the Shadow</h2>
+          <p>Move through chapters, upgrade your armory, and return to the fight with momentum.</p>
+        </div>
+        <div class="menu-button-stack">
+          <button class="menu-btn menu-btn-primary" type="button" data-action="continue">Continue</button>
+          <button class="menu-btn" id="btn-new-game" type="button" data-action="new-game">New Game</button>
+          <button class="menu-btn" type="button" data-action="chapters">Chapters</button>
+          <button class="menu-btn" type="button" data-action="armory">Armory</button>
+          <button class="menu-btn" type="button" data-action="training">Training</button>
+          <button class="menu-btn" type="button" data-action="settings">Settings</button>
+        </div>
+        <div class="menu-footer-links">
+          <button class="menu-link-btn" type="button" data-action="credits">Credits</button>
+          <button class="menu-link-btn" type="button" data-action="reset-progress">Reset Progress</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="chapter-screen" class="screen screen-chapters">
+    <div class="screen-shell chapter-shell">
+      <section class="screen-sidebar ui-panel">
+        <div class="panel-kicker">Campaign</div>
+        <h2 class="screen-title">Chapter Journey</h2>
+        <p class="screen-copy">A curated progression path with act framing, reward hooks, difficulty reads, and locked-state clarity.</p>
+        <div id="chapter-progress-summary" class="progress-summary"></div>
+        <div id="chapter-detail-panel" class="chapter-detail-card detail-card"></div>
+        <div class="screen-footer-actions">
+          <button class="secondary-btn" type="button" data-action="menu">Back</button>
+          <button id="chapter-launch-btn" class="primary-btn" type="button">Enter Chapter</button>
+        </div>
+      </section>
+      <section class="screen-content ui-panel">
+        <div class="section-heading-row">
+          <div>
+            <div class="panel-kicker">Acts</div>
+            <h3>Selectable Destinations</h3>
+          </div>
+          <div class="hint-text">Locked, active, and completed states are surfaced clearly.</div>
+        </div>
+        <div id="chapter-card-list" class="chapter-card-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="shop-screen" class="screen screen-armory">
+    <div class="screen-shell armory-shell">
+      <section class="screen-sidebar ui-panel armory-sidebar">
+        <div class="panel-kicker">Loadout</div>
+        <h2 class="screen-title">Armory</h2>
+        <p class="screen-copy">Equipment presentation now supports weapons, armor, helms, ranged gear, magic, perks, upgrades, and future economy hooks.</p>
+        <div id="armory-category-tabs" class="segmented-tabs"></div>
+        <div id="armory-overview" class="armory-overview"></div>
+        <div class="screen-footer-actions">
+          <button class="secondary-btn" type="button" data-action="back-from-armory">Back</button>
+        </div>
+      </section>
+
+      <section class="screen-content ui-panel armory-content">
+        <div class="section-heading-row">
+          <div>
+            <div class="panel-kicker">Inventory</div>
+            <h3 id="armory-section-title">Weapons</h3>
+          </div>
+          <div class="hint-text">Select gear to compare and equip.</div>
+        </div>
+        <div class="armory-body">
+          <div id="armory-card-list" class="armory-card-list"></div>
+          <aside id="armory-detail-panel" class="detail-card armory-detail"></aside>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="story-screen" class="screen screen-story">
+    <div class="dialogue-box" id="dbox">
+      <div class="ava-container" id="dava"></div>
+      <div class="dlg-content">
+        <div class="speaker-name" id="dname">CHUG</div>
+        <p class="dlg-text" id="dtxt">Loading...</p>
+      </div>
+      <div class="dlg-hint">Tap to advance</div>
+    </div>
+  </div>
+
+  <div id="part-end-screen" class="screen screen-overlay-center">
+    <div class="part-end-card" id="partEndCard">
+      <div class="pec-top-bar"></div>
+      <div class="pec-part-label" id="pecPartLabel">PART I</div>
+      <div class="pec-title" id="pecTitle">THE FALL</div>
+      <div class="pec-divider"></div>
+      <div class="pec-stars" id="pecStars">
+        <div class="pec-star" id="pecS1">★</div>
+        <div class="pec-star big" id="pecS2">★</div>
+        <div class="pec-star" id="pecS3">★</div>
+      </div>
+      <div class="pec-complete">Complete</div>
+      <div class="pec-coins" id="pecCoins">+150 🪙</div>
+      <div class="pec-unlocked" id="pecUnlocked">Part II Unlocked</div>
+      <button class="pec-btn" id="part-end-continue" type="button">Continue ▶</button>
+      <div class="pec-bottom-bar"></div>
+    </div>
+  </div>
+
+  <div id="hud-screen" class="screen screen-hud">
+    <div class="hud-frame">
+      <div class="hud-top">
+        <section class="fighter-plate player-plate">
+          <div class="fighter-info-row">
+            <div>
+              <div class="fighter-name">CHUG</div>
+              <div class="fighter-subtitle" id="player-weapon-label">Unarmed Initiate</div>
+            </div>
+            <div class="rounds"><div class="dot" id="pr1"></div><div class="dot" id="pr2"></div><div class="dot" id="pr3"></div></div>
+          </div>
+          <div class="health-track"><div class="damage-ghost" id="p-hp-ghost"></div><div class="bar-fill" id="p-hp"></div></div>
+          <div class="resource-stack">
+            <div class="resource-label-row"><span>Rage</span><span id="rage-text">Ready</span></div>
+            <div class="rage-bar-bg"><div id="p-rage"></div></div>
+          </div>
+          <div class="resource-stack">
+            <div class="resource-label-row"><span>Stamina</span><span id="stam-text">Stable</span></div>
+            <div class="stam-bar-bg"><div id="p-stam"></div></div>
+          </div>
+        </section>
+
+        <section class="hud-center-cluster">
+          <div class="timer-ring"><div class="timer" id="timer">50</div></div>
+          <div class="round-label" id="round-label">Round 1</div>
+          <div class="hud-subline">Safe margins preserved for cinematic combat readability.</div>
+        </section>
+
+        <section class="fighter-plate enemy-plate">
+          <div class="fighter-info-row reverse">
+            <div>
+              <div class="fighter-name" id="e-name">VOID SHADOW</div>
+              <div class="fighter-subtitle" id="enemy-weapon-label">Mirrored Threat</div>
+            </div>
+            <div class="rounds"><div class="dot" id="er1"></div><div class="dot" id="er2"></div><div class="dot" id="er3"></div></div>
+          </div>
+          <div class="health-track enemy-track"><div class="damage-ghost" id="e-hp-ghost"></div><div class="bar-fill" id="e-hp"></div></div>
+          <div class="resource-stack compact right-align">
+            <div class="resource-label-row"><span>Boss Hook</span><span>Phase-ready</span></div>
+            <div class="boss-hook-bar"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="combat-meta-pill" id="combo-display">
+          <div id="combo-count"></div>
+          <div id="combo-label"></div>
+        </div>
+        <button id="btn-rage" class="rage-trigger" type="button">Rage</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="controls" class="controls-layer">
+    <div class="ctrl-left">
+      <div class="c-btn" id="btn-l">◀</div>
+      <div class="c-btn" id="btn-r">▶</div>
+    </div>
+    <div class="ctrl-right">
+      <div class="c-btn" id="btn-j">▲</div>
+      <div class="c-btn" id="btn-k">Kick</div>
+      <div class="c-btn" id="btn-g">Grab</div>
+      <div class="c-btn" id="btn-p">Punch</div>
+      <div class="c-btn" id="btn-t">Throw</div>
+    </div>
+  </div>
+
+  <div id="kbhint" class="hint-pill">A/D Move · W Jump · F Punch · K Kick · G Grab · T Throw · R Rage</div>
+  <div id="banner" class="banner"></div>
+  <div id="flash"></div>
+
+  <div id="settings-screen" class="screen screen-settings">
+    <div class="settings-shell ui-panel">
+      <div class="section-heading-row settings-heading">
+        <div>
+          <div class="panel-kicker">Configuration</div>
+          <h2 class="screen-title">Settings</h2>
+        </div>
+        <button class="secondary-btn" type="button" data-action="menu">Back</button>
+      </div>
+      <div class="settings-grid">
+        <div class="settings-card">
+          <div class="setting-row">
+            <span>Music</span>
+            <div class="setting-inline-controls">
+              <button type="button" data-setting="music-down">−</button>
+              <div class="meter"><div id="music-vol-fill"></div></div>
+              <button type="button" data-setting="music-up">+</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <span>SFX</span>
+            <div class="setting-inline-controls">
+              <button type="button" data-setting="sfx-down">−</button>
+              <div class="meter"><div id="sfx-vol-fill"></div></div>
+              <button type="button" data-setting="sfx-up">+</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <span>Screen Shake</span>
+            <button id="shake-toggle" type="button" data-setting="shake-toggle">ON</button>
+          </div>
+          <div class="setting-row">
+            <span>Combo Display</span>
+            <button id="combo-toggle" type="button" data-setting="combo-toggle">ON</button>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="panel-kicker">Controls</div>
+          <div class="controls-reference">
+            <span>A/D — Move</span><span>W — Jump</span>
+            <span>F — Punch</span><span>K — Kick</span>
+            <span>G — Grab</span><span>T — Throw</span>
+            <span>R — Rage</span><span>Tap dialogue — Advance</span>
+          </div>
+        </div>
+        <div class="settings-card full-span">
+          <div class="panel-kicker">Story So Far</div>
+          <div id="story-recap-text" class="story-recap-box"></div>
         </div>
       </div>
-      <div class="chap-lock" id="act1-lock">▶</div>
     </div>
-
-    <!-- ACT II -->
-    <div class="chapter-card locked" id="act2-card" onclick="openAct(2)">
-      <div class="chap-num dim" id="act2-num">II</div>
-      <div class="chap-info">
-        <div class="chap-title" id="act2-title">ACT II — AFTERIMAGE</div>
-        <div class="chap-sub">Parts 11 — 20 · Coming...</div>
-        <div class="chap-parts">
-          <span class="chap-dot" id="cdot11">●</span>
-          <span style="color:rgba(200,147,26,0.1);font-size:9px;letter-spacing:2px;margin-left:4px;">+ MORE</span>
-        </div>
-      </div>
-      <div class="chap-lock" id="act2-lock">🔒</div>
-    </div>
-
-    <button class="chapter-back" onclick="closeChapterSelect()">◀ BACK</button>
   </div>
+
+  <div id="chap-transition" class="transition-overlay">
+    <div id="chap-transition-txt">
+      <div class="ct-chapter" id="ct-chapter-lbl">CHAPTER I</div>
+      <div class="ct-title" id="ct-title-lbl">SHADOW OF FAME</div>
+    </div>
+  </div>
+
+  <div id="notification-layer" class="notification-layer"></div>
+  <div id="ui-debug" class="ui-debug"></div>
 </div>
 
-<!-- ACT I CHAPTER SELECT -->
-<div id="act1-screen" class="screen" style="background:rgba(0,0,0,0.94);backdrop-filter:blur(10px);">
-  <div class="chapter-wrap">
-    <div style="font-size:10px;letter-spacing:6px;color:rgba(200,147,26,0.4);text-align:center;margin-bottom:4px;">ACT I</div>
-    <div class="chapter-header" style="font-size:18px;">SHADOW OF FAME</div>
-    <div class="chapter-divider"></div>
-
-    <!-- Chapter I -->
-    <div class="chapter-card" id="chap1-card" onclick="startChapter(1)">
-      <div class="chap-num" style="font-size:clamp(20px,4vw,30px);">CH.I</div>
-      <div class="chap-info">
-        <div class="chap-title">THE FALL</div>
-        <div class="chap-sub">Parts 1 — 5 · The Fall through Controlled</div>
-        <div class="chap-parts">
-          <span class="chap-dot" id="ch1dot1">●</span>
-          <span class="chap-dot" id="ch1dot2">●</span>
-          <span class="chap-dot" id="ch1dot3">●</span>
-          <span class="chap-dot" id="ch1dot4">●</span>
-          <span class="chap-dot" id="ch1dot5">●</span>
-        </div>
-      </div>
-      <div class="chap-lock" id="chap1-lock">▶</div>
-    </div>
-
-    <!-- Chapter II -->
-    <div class="chapter-card locked" id="chap2-card" onclick="startChapter(2)">
-      <div class="chap-num dim" id="chap2-num" style="font-size:clamp(20px,4vw,30px);">CH.II</div>
-      <div class="chap-info">
-        <div class="chap-title" id="chap2-title">VANISHED</div>
-        <div class="chap-sub">Parts 6 — 10 · Vanished through Erasure</div>
-        <div class="chap-parts">
-          <span class="chap-dot" id="ch2dot6">●</span>
-          <span class="chap-dot" id="ch2dot7">●</span>
-          <span class="chap-dot" id="ch2dot8">●</span>
-          <span class="chap-dot" id="ch2dot9">●</span>
-          <span class="chap-dot" id="ch2dot10">●</span>
-        </div>
-      </div>
-      <div class="chap-lock" id="chap2-lock">🔒</div>
-    </div>
-
-    <button class="chapter-back" onclick="closeAct()">◀ ACTS</button>
-  </div>
-</div>
-
-<!-- ACT II CHAPTER SELECT -->
-<div id="act2-screen" class="screen" style="background:rgba(0,0,0,0.94);backdrop-filter:blur(10px);">
-  <div class="chapter-wrap">
-    <div style="font-size:10px;letter-spacing:6px;color:rgba(200,147,26,0.4);text-align:center;margin-bottom:4px;">ACT II</div>
-    <div class="chapter-header" style="font-size:18px;">AFTERIMAGE</div>
-    <div class="chapter-divider"></div>
-
-    <!-- Chapter III -->
-    <div class="chapter-card locked" id="chap3-card" onclick="startChapter(3)">
-      <div class="chap-num dim" id="chap3-num" style="font-size:clamp(20px,4vw,30px);">CH.III</div>
-      <div class="chap-info">
-        <div class="chap-title" id="chap3-title">AFTERIMAGE</div>
-        <div class="chap-sub">Part 11 — New threats emerge</div>
-        <div class="chap-parts">
-          <span class="chap-dot" id="ch3dot11">●</span>
-        </div>
-      </div>
-      <div class="chap-lock" id="chap3-lock">🔒</div>
-    </div>
-
-    <button class="chapter-back" onclick="closeAct()">◀ ACTS</button>
-  </div>
-</div>
-
-<!-- ARMORY -->
-<div id="shop-screen" class="screen">
-<div class="shop-wrap">
-  <div style="text-align:center;padding-top:20px;">
-    <div class="shop-header">ARMORY</div>
-    <div class="shop-sub">EQUIP SHADOW GEAR · UPGRADE YOUR POWER</div>
-  </div>
-
-  <div class="shop-section">
-    <div class="shop-section-title">Weapons</div>
-    <div class="shop-grid">
-      <div class="shop-item" id="buy-knuckle" onclick="buyItem('weapon','knuckle',100)">
-        <div class="s-icon">🥊</div><div class="s-name">Iron Knuckles</div>
-        <div class="s-desc">+6 DMG. Fast pressure. Gold plated.</div><div class="s-price">🪙 100</div>
-      </div>
-      <div class="shop-item" id="buy-dagger" onclick="buyItem('weapon','dagger',250)">
-        <div class="s-icon">🗡️</div><div class="s-name">Void Dagger</div>
-        <div class="s-desc">+8 DMG. +Spd. Pierces armor.</div><div class="s-price">🪙 250</div>
-      </div>
-      <div class="shop-item" id="buy-katana" onclick="buyItem('weapon','katana',420)">
-        <div class="s-icon">⚔️</div><div class="s-name">Shadow Katana</div>
-        <div class="s-desc">+11 DMG. Curved blade, long slash.</div><div class="s-price">🪙 420</div>
-      </div>
-      <div class="shop-item" id="buy-staff" onclick="buyItem('weapon','staff',360)">
-        <div class="s-icon">🪄</div><div class="s-name">Monk Staff</div>
-        <div class="s-desc">+7 DMG. Wide sweep reach.</div><div class="s-price">🪙 360</div>
-      </div>
-      <div class="shop-item" id="buy-scythe" onclick="buyItem('weapon','scythe',650)">
-        <div class="s-icon">☽</div><div class="s-name">Shadow Scythe</div>
-        <div class="s-desc">+14 DMG. Death arc. Void-cursed blade.</div><div class="s-price">🪙 650</div>
-      </div>
-      <div class="shop-item" id="buy-claws" onclick="buyItem('weapon','claws',380)">
-        <div class="s-icon">🔱</div><div class="s-name">Void Claws</div>
-        <div class="s-desc">+7 DMG. +Speed. Triple dual-hit.</div><div class="s-price">🪙 380</div>
-      </div>
-      <div class="shop-item" id="buy-hammer" onclick="buyItem('weapon','hammer',480)">
-        <div class="s-icon">🔨</div><div class="s-name">Doom Hammer</div>
-        <div class="s-desc">+13 DMG. Ground-shatter impact.</div><div class="s-price">🪙 480</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="shop-section">
-    <div class="shop-section-title">Armor</div>
-    <div class="shop-grid">
-      <div class="shop-item" id="buy-lightarmor" onclick="buyItem('armor','lightarmor',180)">
-        <div class="s-icon">🥋</div><div class="s-name">Shadow Gi</div>
-        <div class="s-desc">+3 DEF. +25 HP. Light.</div><div class="s-price">🪙 180</div>
-      </div>
-      <div class="shop-item" id="buy-heavyarmor" onclick="buyItem('armor','heavyarmor',420)">
-        <div class="s-icon">🛡️</div><div class="s-name">Titan Armor</div>
-        <div class="s-desc">+6 DEF. +50 HP. Heavy.</div><div class="s-price">🪙 420</div>
-      </div>
-      <div class="shop-item" id="buy-voidarmor" onclick="buyItem('armor','voidarmor',600)">
-        <div class="s-icon">🌑</div><div class="s-name">Void Shroud</div>
-        <div class="s-desc">+9 DEF. +70 HP. Absorbs 10%.</div><div class="s-price">🪙 600</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="shop-section">
-    <div class="shop-section-title">Upgrades</div>
-    <div class="shop-grid">
-      <div class="shop-item" id="buy-rage2" onclick="buyItem('upgrade','rage2',700)">
-        <div class="s-icon">🔥</div><div class="s-name">Rage Mode II</div>
-        <div class="s-desc">Bigger aura. More DMG. Less taken.</div><div class="s-price">🪙 700</div>
-      </div>
-      <div class="shop-item" id="buy-strength" onclick="buyItem('upgrade','strength',400)">
-        <div class="s-icon">💪</div><div class="s-name">Strength I</div>
-        <div class="s-desc">+5 base DMG on all attacks.</div><div class="s-price">🪙 400</div>
-      </div>
-      <div class="shop-item" id="buy-strength2" onclick="buyItem('upgrade','strength2',800)">
-        <div class="s-icon">⚡</div><div class="s-name">Strength II</div>
-        <div class="s-desc">+10 base DMG. Requires Str I.</div><div class="s-price">🪙 800</div>
-      </div>
-      <div class="shop-item" id="buy-speed" onclick="buyItem('upgrade','speed',350)">
-        <div class="s-icon">💨</div><div class="s-name">Speed I</div>
-        <div class="s-desc">+2 movement & attack speed.</div><div class="s-price">🪙 350</div>
-      </div>
-      <div class="shop-item" id="buy-speed2" onclick="buyItem('upgrade','speed2',700)">
-        <div class="s-icon">🌪️</div><div class="s-name">Speed II</div>
-        <div class="s-desc">+4 spd. Faster combos. Req Speed I.</div><div class="s-price">🪙 700</div>
-      </div>
-      <div class="shop-item" id="buy-endurance" onclick="buyItem('upgrade','endurance',450)">
-        <div class="s-icon">❤️</div><div class="s-name">Endurance I</div>
-        <div class="s-desc">+30 max HP. Regen on kill.</div><div class="s-price">🪙 450</div>
-      </div>
-      <div class="shop-item" id="buy-endurance2" onclick="buyItem('upgrade','endurance2',900)">
-        <div class="s-icon">💎</div><div class="s-name">Endurance II</div>
-        <div class="s-desc">+60 HP. 15% damage reduction.</div><div class="s-price">🪙 900</div>
-      </div>
-    </div>
-  </div>
-
-  <div style="text-align:center;padding-bottom:24px;">
-    <button class="shop-back" onclick="closeShop()">◀ RETURN</button>
-  </div>
-</div>
-</div>
-
-<!-- STORY -->
-<div id="story-screen" class="screen">
-  <div class="dialogue-box" id="dbox">
-    <div class="ava-container" id="dava"></div>
-    <div class="dlg-content">
-      <div class="speaker-name" id="dname">CHUG</div>
-      <p class="dlg-text" id="dtxt">Loading...</p>
-    </div>
-    <div class="dlg-hint">TAP TO ADVANCE</div>
-  </div>
-</div>
-
-<!-- PART END CARD -->
-<div id="part-end-screen" class="screen">
-  <div class="part-end-card" id="partEndCard">
-    <div class="pec-top-bar"></div>
-    <div class="pec-part-label" id="pecPartLabel">PART I</div>
-    <div class="pec-title" id="pecTitle">THE FALL</div>
-    <div class="pec-divider"></div>
-    <div class="pec-stars" id="pecStars">
-      <div class="pec-star" id="pecS1">★</div>
-      <div class="pec-star big" id="pecS2">★</div>
-      <div class="pec-star" id="pecS3">★</div>
-    </div>
-    <div class="pec-complete">COMPLETE</div>
-    <div class="pec-coins" id="pecCoins">+150 🪙</div>
-    <div class="pec-unlocked" id="pecUnlocked">PART II UNLOCKED</div>
-    <button class="pec-btn" onclick="partEndContinue()">CONTINUE ▶</button>
-    <div class="pec-bottom-bar"></div>
-  </div>
-</div>
-
-<!-- HUD -->
-<div id="hud-screen" class="screen">
-  <div class="hud-bar">
-    <div class="health-wrapper">
-      <div class="fighter-info">
-        <div class="fighter-name">CHUG</div>
-        <div class="rounds"><div class="dot" id="pr1"></div><div class="dot" id="pr2"></div><div class="dot" id="pr3"></div></div>
-      </div>
-      <div class="bar-bg"><div class="bar-fill" id="p-hp"></div></div>
-      <div id="rage-container">
-        <div class="rage-bar-bg"><div id="p-rage"></div></div>
-        <div id="rage-text">▶ RAGE READY</div>
-      </div>
-      <div id="stam-container">
-        <div class="stam-bar-bg"><div id="p-stam"></div></div>
-        <div id="stam-text">STAMINA</div>
-      </div>
-    </div>
-    <div class="timer-wrap">
-      <div class="timer" id="timer">50</div>
-      <div class="round-label" id="round-label">ROUND 1</div>
-    </div>
-    <div class="health-wrapper" style="text-align:right;align-items:flex-end;">
-      <div class="fighter-info" style="flex-direction:row-reverse;">
-        <div class="fighter-name" id="e-name">VOID SHADOW</div>
-        <div class="rounds"><div class="dot" id="er1"></div><div class="dot" id="er2"></div><div class="dot" id="er3"></div></div>
-      </div>
-      <div class="bar-bg"><div class="bar-fill" id="e-hp"></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- CONTROLS -->
-<div id="controls">
-  <div class="ctrl-left">
-    <div class="c-btn" id="btn-l">◀</div>
-    <div class="c-btn" id="btn-r">▶</div>
-  </div>
-  <div id="btn-rage">RAGE</div>
-  <div class="ctrl-right">
-    <div class="c-btn" id="btn-j">▲</div>
-    <div class="c-btn" id="btn-k">KICK</div>
-    <div class="c-btn" id="btn-g">GRAB</div>
-    <div class="c-btn" id="btn-p">PUNCH</div>
-    <div class="c-btn" id="btn-t">THROW</div>
-  </div>
-</div>
-
-<div id="kbhint">A/D Move · W Jump · F Punch · K Kick · G Grab · T Throw · R Rage</div>
-<div id="banner"></div>
-<div id="flash"></div>
-
-<!-- COMBO COUNTER -->
-<div id="combo-display" style="position:absolute;top:90px;left:50%;transform:translateX(-50%);z-index:30;pointer-events:none;text-align:center;display:none;">
-  <div id="combo-count" style="font-family:'Cinzel Decorative',serif;font-size:clamp(28px,6vw,48px);font-weight:700;color:#fff;text-shadow:0 0 20px rgba(255,100,0,0.8),0 4px 12px #000;letter-spacing:4px;transition:transform 0.1s;"></div>
-  <div id="combo-label" style="font-size:10px;letter-spacing:6px;color:rgba(255,160,60,0.8);margin-top:-4px;font-family:'Cinzel',serif;"></div>
-</div>
-
-<!-- PART INDICATOR (top center during story) -->
-<div id="part-indicator" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:100;pointer-events:none;display:none;
-  background:rgba(0,0,0,0.6);border:1px solid var(--border);padding:5px 18px;border-radius:20px;
-  font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;color:rgba(200,147,26,0.7);white-space:nowrap;"></div>
-
-<!-- SETTINGS SCREEN -->
-<div id="settings-screen" class="screen" style="background:rgba(0,0,0,0.97);backdrop-filter:blur(12px);">
-  <div style="width:min(90vw,480px);display:flex;flex-direction:column;gap:0;padding:20px 0;">
-    <div style="font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);letter-spacing:8px;text-align:center;margin-bottom:4px;">SETTINGS</div>
-    <div style="width:180px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 28px;"></div>
-
-    <!-- Music Volume -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid rgba(200,147,26,0.08);">
-      <div style="font-size:11px;letter-spacing:3px;color:rgba(200,160,80,0.8);">MUSIC</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button onclick="adjustVol('music',-0.1)" style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(200,147,26,0.3);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">−</button>
-        <div id="music-vol-bar" style="width:100px;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;"><div id="music-vol-fill" style="height:100%;width:70%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:3px;transition:width 0.15s;"></div></div>
-        <button onclick="adjustVol('music',0.1)" style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(200,147,26,0.3);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
-      </div>
-    </div>
-
-    <!-- SFX Volume -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid rgba(200,147,26,0.08);">
-      <div style="font-size:11px;letter-spacing:3px;color:rgba(200,160,80,0.8);">SFX</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button onclick="adjustVol('sfx',-0.1)" style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(200,147,26,0.3);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">−</button>
-        <div id="sfx-vol-bar" style="width:100px;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;"><div id="sfx-vol-fill" style="height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:3px;transition:width 0.15s;"></div></div>
-        <button onclick="adjustVol('sfx',0.1)" style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(200,147,26,0.3);color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">+</button>
-      </div>
-    </div>
-
-    <!-- Screen Shake -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid rgba(200,147,26,0.08);">
-      <div style="font-size:11px;letter-spacing:3px;color:rgba(200,160,80,0.8);">SCREEN SHAKE</div>
-      <button id="shake-toggle" onclick="toggleShake()" style="padding:8px 20px;background:rgba(0,0,0,0.5);border:1px solid rgba(200,147,26,0.4);color:var(--gold-light);font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:3px;cursor:pointer;border-radius:3px;transition:all 0.2s;">ON</button>
-    </div>
-
-    <!-- Combat HUD -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid rgba(200,147,26,0.08);">
-      <div style="font-size:11px;letter-spacing:3px;color:rgba(200,160,80,0.8);">COMBO DISPLAY</div>
-      <button id="combo-toggle" onclick="toggleComboDsp()" style="padding:8px 20px;background:rgba(0,0,0,0.5);border:1px solid rgba(200,147,26,0.4);color:var(--gold-light);font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:3px;cursor:pointer;border-radius:3px;transition:all 0.2s;">ON</button>
-    </div>
-
-    <!-- Controls reference -->
-    <div style="padding:16px 24px;border-bottom:1px solid rgba(200,147,26,0.08);">
-      <div style="font-size:10px;letter-spacing:4px;color:rgba(200,147,26,0.5);margin-bottom:10px;">CONTROLS</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:10px;color:rgba(200,180,120,0.7);font-family:monospace;letter-spacing:1px;line-height:1.8;">
-        <span>A/D — Move</span><span>W — Jump</span>
-        <span>F — Punch</span><span>K — Kick</span>
-        <span>G — Grab</span><span>T — Throw</span>
-        <span>R — Rage</span><span>G×2 — Double Slam</span>
-      </div>
-    </div>
-
-    <!-- Story Recap -->
-    <div style="padding:14px 24px;border-bottom:1px solid rgba(200,147,26,0.08);">
-      <div style="font-size:10px;letter-spacing:4px;color:rgba(200,147,26,0.5);margin-bottom:8px;">STORY SO FAR</div>
-      <div id="story-recap-text" style="font-size:10px;color:rgba(180,160,120,0.75);line-height:1.7;font-family:monospace;letter-spacing:0.5px;max-height:120px;overflow-y:auto;"></div>
-    </div>
-
-    <div style="text-align:center;padding:20px 0 0;">
-      <button onclick="closeSettings()" style="background:transparent;border:1px solid rgba(200,147,26,0.3);color:rgba(200,147,26,0.7);font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:4px;padding:10px 40px;cursor:pointer;border-radius:3px;transition:all 0.2s;">◀ BACK</button>
-    </div>
-  </div>
-</div>
-
-<div id="chap-transition">
-  <div id="chap-transition-txt">
-    <div class="ct-chapter" id="ct-chapter-lbl">CHAPTER I</div>
-    <div class="ct-title" id="ct-title-lbl">SHADOW OF FAME</div>
-  </div>
-</div>
 <script src="src/core/constants.js"></script>
 <script src="src/systems/audioSystem.js"></script>
 <script src="src/core/runtime.js"></script>
 <script src="src/systems/debugSystem.js"></script>
 <script src="src/data/storyData.js"></script>
+<script src="src/data/weapons.js"></script>
 <script src="src/systems/saveSystem.js"></script>
+<script src="src/ui/core/uiTheme.js"></script>
+<script src="src/ui/core/uiStateStore.js"></script>
+<script src="src/ui/core/uiRouter.js"></script>
+<script src="src/ui/core/uiTransitions.js"></script>
+<script src="src/ui/overlays/notificationController.js"></script>
+<script src="src/ui/overlays/overlayController.js"></script>
+<script src="src/ui/hud/hudController.js"></script>
+<script src="src/ui/screens/menuController.js"></script>
+<script src="src/ui/screens/chapterSelectController.js"></script>
+<script src="src/ui/screens/armoryController.js"></script>
+<script src="src/ui/uiDebug.js"></script>
 <script src="src/systems/uiSystem.js"></script>
 <script src="src/systems/inputBufferSystem.js"></script>
-<script src="src/data/weapons.js"></script>
 <script src="src/data/enemyArchetypes.js"></script>
 <script src="src/data/movesets.js"></script>
 <script src="src/data/animationRegistry.js"></script>
