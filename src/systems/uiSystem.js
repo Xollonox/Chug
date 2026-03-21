@@ -7,6 +7,10 @@ const UI = {
   kbhint: document.getElementById('kbhint'),
   gCoins: document.getElementById('global-coins'),
   btnMenu: document.getElementById('btn-ingame-menu'),
+  profileLevel: document.getElementById('profile-level'),
+  profileXpFill: document.getElementById('profile-xp-fill'),
+  profileXpText: document.getElementById('profile-xp-text'),
+  profileSummary: document.getElementById('profile-summary'),
   cVal: document.getElementById('coin-val'),
   dbox: document.getElementById('dbox'),
   dtxt: document.getElementById('dtxt'),
@@ -65,6 +69,16 @@ function bindBtn(id,key){
 bindBtn('btn-l','l');bindBtn('btn-r','r');bindBtn('btn-j','j');bindBtn('btn-p','a');bindBtn('btn-k','k');bindBtn('btn-g','g');bindBtn('btn-t','t');bindBtn('btn-rage','rage');
 UI.dbox.addEventListener('pointerdown',()=>advance());
 
+
+function renderProfileSummary(){
+  const summary = getProfileSummary?.();
+  if(!summary || !UI.profileSummary) return;
+  UI.profileSummary.style.display = ['menu','story','hud','settings'].some((name)=>uiStateStore?.getState()?.activeScreen === `${name}-screen`) || gameState !== 'menu' ? 'block' : 'block';
+  UI.profileLevel.innerText = summary.level;
+  UI.profileXpFill.style.width = `${Math.max(4, (summary.xpCurrent / Math.max(1, summary.xpNeeded)) * 100)}%`;
+  UI.profileXpText.innerText = `${summary.xpCurrent} / ${summary.xpNeeded} XP`;
+}
+
 function doFlash(){ UI.flash.style.opacity='0.7'; setTimeout(()=>UI.flash.style.opacity='0',70); }
 function showCombo(count){
   if(!settingsComboDsp)return;
@@ -119,9 +133,11 @@ function initUISystems(){
   menuController?.bind();
   uiStateStore?.subscribe((snapshot)=>{
     uiDebug?.render(snapshot);
+    renderProfileSummary();
     if(snapshot.activeScreen === 'chapter-screen') chapterSelectController?.render();
     if(snapshot.activeScreen === 'shop-screen') armoryController?.render();
   });
+  document.getElementById('reward-continue-btn')?.addEventListener('click', ()=>continueRewardFlow());
   document.querySelectorAll('[data-setting]').forEach((button)=>button.addEventListener('click', ()=>{
     const action = button.dataset.setting;
     if(action === 'music-down') adjustVol('music',-0.1);
@@ -133,3 +149,5 @@ function initUISystems(){
   }));
 }
 window.initUISystems = initUISystems;
+
+window.renderProfileSummary = renderProfileSummary;

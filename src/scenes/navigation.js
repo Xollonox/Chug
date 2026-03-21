@@ -6,6 +6,7 @@ let activeAct = 1;
 
 function refreshMenuLocks(){
   chapterSelectController?.render();
+  renderProfileSummary?.();
 }
 
 function openChapterSelect(){
@@ -42,9 +43,12 @@ function closeSettings(){ showScreen('menu-screen'); }
 
 function startChapter(ch){
   initAudio();
-  const unlocked=window.__saveData?.chapterUnlocked||1;
-  const minPart={1:1,2:6,3:11}[ch]||1;
-  if(unlocked<minPart){ notificationController?.push({ title:'Chapter Locked', copy:'Progress farther into the story to unlock this chapter.', color:'rgba(255,59,95,0.5)' }); return; }
+  const chapter = CHAPTER_CONFIG[ch];
+  const profile = getPlayerProfile();
+  if(!profile.chapterProgress.unlocked.includes(ch) || profile.level < (chapter.requiredLevel || 1)){
+    notificationController?.push({ title:'Chapter Locked', copy:`Reach level ${chapter.requiredLevel} and clear previous content to enter ${chapter.title}.`, color:'rgba(255,59,95,0.5)' });
+    return;
+  }
 
   activeChapter=ch;
   activeAct=CHAPTER_ACT[ch]||1;
@@ -97,17 +101,17 @@ function newGame(){
   initAudio();
   try{localStorage.removeItem(SAVE_KEY);}catch(e){}
   window.__saveData=defaultSave();
-  coins=0; weapon='none'; armor='none'; rageMode2=false; strengthUpg=0; speedUpg=0; enduranceUpg=0; currentPart=1;
+  window.__saveData.profile = createDefaultProfile();
+  syncLegacyProgressionGlobals(window.__saveData.profile);
+  currentPart=1;
   refreshPersistentUI();
-  notificationController?.push({ title:'Progress Reset', copy:'A new run has begun. Enter the shadow again.' });
+  notificationController?.push({ title:'Progress Reset', copy:'A fresh profile has been initialized.' });
   doFlash();
   UI.gCoins.style.display='block'; UI.btnMenu.style.display='block';
-  scIdx=getPartStartIndex(1); activeChapter=1; applyPartBg(1); startMusicTheme('story'); gameState='story'; showScreen('story-screen'); advance(true);
+  scIdx=getPartStartIndex(1); activeChapter=1; applyPartBg(1); startMusicTheme('story'); gameState='story'; showScreen('story-screen'); saveGame({currentPart:1}); advance(true);
 }
 
-function updateCoins(amt){
-  if(amt!==0){ coins+=amt; UI.cVal.innerText=coins; UI.gCoins.style.transform='scale(1.08)'; setTimeout(()=>UI.gCoins.style.transform='scale(1)',200); saveGame(); }
-}
+function updateCoins(amt){ if(amt!==0){ addCoins(amt, 'legacy'); UI.gCoins.style.transform='scale(1.08)'; setTimeout(()=>UI.gCoins.style.transform='scale(1)',200); saveGame(); } }
 
 function startPart(num){
   initAudio(); loadGame(); UI.gCoins.style.display='block'; UI.btnMenu.style.display='block';
@@ -135,33 +139,26 @@ function closeShop(){
 }
 function shopToast(msg,col='#f5c842'){ notificationController?.push({ title:'Armory', copy:msg, color:col }); }
 function buyItem(kind,name,price){
-  if(kind!=='weapon' && kind!=='armor' && kind!=='upgrade') return;
-  const alreadyOwned = (kind==='weapon' && weapon===name) || (kind==='armor' && armor===name) ||
-    (name==='rage2'&&rageMode2) || (name==='strength'&&strengthUpg>=1) || (name==='strength2'&&strengthUpg>=2) ||
-    (name==='speed'&&speedUpg>=1) || (name==='speed2'&&speedUpg>=2) || (name==='endurance'&&enduranceUpg>=1) || (name==='endurance2'&&enduranceUpg>=2);
-  if(!alreadyOwned && coins<price){ shopToast('Not enough coins.', '#ff003c'); return; }
-
-  if(kind==='weapon'){
-    if(!alreadyOwned) updateCoins(-price);
-    weapon=name; saveGame(); shopToast(`Equipped ${getWeaponProfile(name).name}.`);
-  } else if(kind==='armor'){
-    if(!alreadyOwned) updateCoins(-price);
-    armor=name; saveGame(); shopToast(`Armor set: ${name.toUpperCase()}.`);
-  } else if(kind==='upgrade'){
-    if(name==='strength2' && strengthUpg<1) return shopToast('Requires Strength I.', '#888');
-    if(name==='speed2' && speedUpg<1) return shopToast('Requires Speed I.', '#888');
-    if(name==='endurance2' && enduranceUpg<1) return shopToast('Requires Endurance I.', '#888');
-    if(!alreadyOwned) updateCoins(-price);
-    if(name==='rage2') rageMode2=true;
-    if(name==='strength') strengthUpg=Math.max(strengthUpg,1);
-    if(name==='strength2') strengthUpg=Math.max(strengthUpg,2);
-    if(name==='speed') speedUpg=Math.max(speedUpg,1);
-    if(name==='speed2') speedUpg=Math.max(speedUpg,2);
-    if(name==='endurance') enduranceUpg=Math.max(enduranceUpg,1);
-    if(name==='endurance2') enduranceUpg=Math.max(enduranceUpg,2);
-    saveGame(); shopToast(`${name.toUpperCase()} activated.`);
+  const category = kind === 'weapon' ? 'weapons' : kind === 'armor' ? 'armor' : 'upgrades';
+  const item = getEquipmentEntries(category).find((entry)=>entry.id === name) || getWeaponProfile(name);
+  if(!item) return;
+  if(kind === 'weapon' || kind === 'armor'){
+    if(!isItemOwned(name, category)){
+      const result = purchaseItem(item);
+      if(!result.ok) return shopToast(result.message || 'Purchase failed.', '#ff003c');
+      saveGame();
+      return shopToast(`Purchased and equipped ${item.name}.`);
+    }
+    const equipResult = equipItem(category, name);
+    if(!equipResult.ok) return shopToast(equipResult.message, '#ff003c');
+    saveGame();
+    return shopToast(`Equipped ${item.name}.`);
   }
+  const result = purchaseItem(item);
+  if(!result.ok) return shopToast(result.message || 'Purchase failed.', '#ff003c');
+  saveGame();
   armoryController?.render();
+  return shopToast(`${item.name} activated.`);
 }
 
 const PART_NAMES={1:'THE FALL',2:'THE WATCHER',3:'ECHOES',4:'LEFT BEHIND',5:'CONTROLLED',6:'VANISHED',7:'REWRITE',8:'FRAGMENTS',9:'BREAKPOINT',10:'ERASURE',11:'AFTERIMAGE'};
@@ -183,15 +180,26 @@ function renderDialogue(s){
 }
 
 function showPartEndCard(part){
-  const chapterParts=CHAPTER_PARTS[activeChapter]||[part]; const nextPartInChapter=chapterParts[chapterParts.indexOf(part)+1]||null; const isChapterEnd=!nextPartInChapter; const bonus=PART_COINS[part]||150; const romans=['','I','II','III','IV','V','VI'];
+  const chapterParts=CHAPTER_PARTS[activeChapter]||[part];
+  const nextPartInChapter=chapterParts[chapterParts.indexOf(part)+1]||null;
+  const isChapterEnd=!nextPartInChapter;
+  const bonus=PART_COINS[part]||150;
+  const romans=['','I','II','III','IV','V','VI'];
+  const chapterReward = isChapterEnd ? calculateChapterClearRewards(activeChapter) : { xp: Math.round(bonus * 0.35), coins: bonus };
+  const xpResult = grantXp(chapterReward.xp, 'part-clear');
+  addCoins(chapterReward.coins, 'part-clear');
+  markPartCleared(part);
+  if(isChapterEnd){ markChapterCompleted(activeChapter); }
+
   document.getElementById('pecPartLabel').innerText=`PART ${romans[part]||part}`;
   document.getElementById('pecTitle').innerText=PART_NAMES[part]||`PART ${part}`;
-  document.getElementById('pecCoins').innerText=`+${bonus} 🪙`;
+  document.getElementById('pecCoins').innerText=`+${chapterReward.coins} 🪙`;
+  document.getElementById('pecXp').innerText=`+${chapterReward.xp} XP`;
   const pecBtn=document.getElementById('part-end-continue');
-  if(isChapterEnd){ const unlockMsgs={1:'CHAPTER II — VANISHED UNLOCKED',2:'CHAPTER III — AFTERIMAGE UNLOCKED',3:'ACT II — AFTERIMAGE CONTINUES...'}; document.getElementById('pecUnlocked').innerText=unlockMsgs[activeChapter]||'JOURNEY CONTINUES...'; if(pecBtn)pecBtn.innerText='FINISH CHAPTER ▶'; }
-  else { const nName=PART_NAMES[nextPartInChapter]||`PART ${nextPartInChapter}`; document.getElementById('pecUnlocked').innerText=`NEXT: PART ${romans[nextPartInChapter]} — ${nName}`; if(pecBtn)pecBtn.innerText='CONTINUE ▶'; }
+  if(isChapterEnd){ const unlockMsgs={1:'CHAPTER II — VANISHED UNLOCKED',2:'CHAPTER III — AFTERIMAGE UNLOCKED',3:'ACT II — AFTERIMAGE CONTINUES...'}; document.getElementById('pecUnlocked').innerText=`${unlockMsgs[activeChapter]||'JOURNEY CONTINUES...'}${xpResult.levelsGained ? ` · LEVEL ${xpResult.newLevel}` : ''}`; if(pecBtn)pecBtn.innerText='FINISH CHAPTER ▶'; }
+  else { const nName=PART_NAMES[nextPartInChapter]||`PART ${nextPartInChapter}`; document.getElementById('pecUnlocked').innerText=`NEXT: PART ${romans[nextPartInChapter]} — ${nName}${xpResult.levelsGained ? ` · LEVEL ${xpResult.newLevel}` : ''}`; if(pecBtn)pecBtn.innerText='CONTINUE ▶'; }
   ['pecS1','pecS2','pecS3'].forEach(id=>{ const el=document.getElementById(id); el.className='pec-star'; if(id==='pecS2')el.classList.add('big'); });
-  _pendingPartEnd={part,nextPart:nextPartInChapter,bonus,isChapterEnd}; showScreen('part-end-screen'); gameState='part-end'; startMusicTheme('partend'); setTimeout(()=>lightStar('pecS1'),400); setTimeout(()=>lightStar('pecS2'),700); setTimeout(()=>lightStar('pecS3'),950); setTimeout(()=>coinBurstFX(bonus),1100); updateCoins(bonus); updateChapterUnlock(part+1); saveGame(); refreshMenuLocks();
+  _pendingPartEnd={part,nextPart:nextPartInChapter,isChapterEnd}; showScreen('part-end-screen'); gameState='part-end'; startMusicTheme('partend'); setTimeout(()=>lightStar('pecS1'),400); setTimeout(()=>lightStar('pecS2'),700); setTimeout(()=>lightStar('pecS3'),950); setTimeout(()=>coinBurstFX(chapterReward.coins),1100); saveGame(); refreshMenuLocks();
 }
 function lightStar(id){ const el=document.getElementById(id); el.classList.add('lit'); beep(600+Math.random()*200,'sine',0.3,0.06); }
 function coinBurstFX(amount){ const card=document.getElementById('partEndCard'); if(!card)return; const rect=card.getBoundingClientRect(); const cx=rect.left+rect.width/2; const cy=rect.top+rect.height*0.55; const count=Math.min(12,Math.floor(amount/20)); for(let i=0;i<count;i++){ const el=document.createElement('div'); el.className='coin-burst'; el.innerText='🪙'; const angle=Math.random()*Math.PI*2; const dist=60+Math.random()*80; el.style.left=cx+'px'; el.style.top=cy+'px'; el.style.setProperty('--tx',(Math.cos(angle)*dist)+'px'); el.style.setProperty('--ty',(Math.sin(angle)*dist-40)+'px'); el.style.animationDelay=(i*0.06)+'s'; document.body.appendChild(el); setTimeout(()=>el.remove(),1200+i*60); } }

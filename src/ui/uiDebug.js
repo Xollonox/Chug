@@ -7,12 +7,16 @@
     box.innerText = [
       `screen: ${snapshot.activeScreen}`,
       `modal: ${snapshot.activeModal || '-'}`,
+      `level: ${getPlayerProfile().level}`,
+      `coins: ${getPlayerProfile().currencies.coins}`,
       `chapter: ${snapshot.selectedChapter}`,
       `category: ${snapshot.selectedCategory}`,
       `item: ${snapshot.selectedItemId || '-'}`,
       `hud: ${snapshot.hudVisible}`,
       `transition: ${snapshot.transitionBusy}`,
-      `gameState: ${window.gameState}`
+      `gameState: ${window.gameState}`,
+      `level: ${getPlayerProfile?.().level || '-'}`,
+      `coins: ${getPlayerProfile?.().currencies?.coins || 0}`
     ].join('\n');
   }
   window.uiDebug = { render };

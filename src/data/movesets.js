@@ -219,7 +219,7 @@ function getMoveDefinition(fighter, moveId){
   const move = MOVESET_REGISTRY.universal[moveId];
   if(!move)return null;
   const weaponId = getFighterWeaponId(fighter);
-  const weaponProfile = getWeaponProfile(weaponId);
+  const weaponProfile = getCombatWeaponProfile(fighter, weaponId);
   const speedScale = fighter.isP
     ? weaponProfile.speedModifier
     : weaponProfile.speedModifier * (fighter.aiBrain?.difficulty?.spacingQuality > 0.8 ? 0.96 : 1);

@@ -1,15 +1,9 @@
 (function(){
-  const CHAPTER_UI_DATA = {
-    1: { title:'The Fall', subtitle:'Parts 1–5 · Collapse into the Shadow System', reward:'150–400 coins', difficulty:'Initiate', act:'Act I', chapterLabel:'CH. I', enemy:'Fragmented Echoes', lore:'The first descent establishes the tone, your losses, and the core enemy language.' },
-    2: { title:'Vanished', subtitle:'Parts 6–10 · Memory erosion and control', reward:'500–1000 coins', difficulty:'Veteran', act:'Act I', chapterLabel:'CH. II', enemy:'Controlled hosts', lore:'Threats become personal, pressure rises, and the system starts rewriting what you know.' },
-    3: { title:'Afterimage', subtitle:'Part 11 · The trail continues', reward:'1200+ coins', difficulty:'Boss Path', act:'Act II', chapterLabel:'CH. III', enemy:'The Figure', lore:'A forward-looking chapter card built to support future boss and act expansion cleanly.' }
-  };
-
   function getChapterProgress(ch){
     const parts = CHAPTER_PARTS[ch] || [];
-    const unlocked = window.__saveData?.chapterUnlocked || 1;
-    const completed = parts.filter((part)=>unlocked > part).length;
-    return { completed, total: Math.max(parts.length, 1), unlocked: unlocked >= parts[0] };
+    const profile = getPlayerProfile();
+    const completed = parts.filter((part)=>profile.clearedParts.includes(part)).length;
+    return { completed, total: Math.max(parts.length, 1), unlocked: profile.chapterProgress.unlocked.includes(ch) && profile.level >= (CHAPTER_CONFIG[ch]?.requiredLevel || 1) };
   }
 
   function render(){
@@ -17,33 +11,30 @@
     const detail = document.getElementById('chapter-detail-panel');
     const summary = document.getElementById('chapter-progress-summary');
     if(!list || !detail || !summary) return;
-    const unlocked = window.__saveData?.chapterUnlocked || 1;
+    const profile = getPlayerProfile();
     const selected = uiStateStore.getState().selectedChapter;
-    summary.innerHTML = `<div class="detail-stat"><span>Active Unlock</span><strong>Part ${unlocked}</strong></div><div class="detail-stat"><span>Acts Online</span><strong>2</strong></div><div class="detail-stat"><span>Future Hook</span><strong>Boss Chapters</strong></div>`;
-    list.innerHTML = Object.keys(CHAPTER_UI_DATA).map((key)=>{
-      const chapter = Number(key);
-      const meta = CHAPTER_UI_DATA[chapter];
-      const progress = getChapterProgress(chapter);
-      const locked = !progress.unlocked;
+    summary.innerHTML = `<div class="detail-stat"><span>Current Level</span><strong>${profile.level}</strong></div><div class="detail-stat"><span>Unlocked Chapters</span><strong>${profile.chapterProgress.unlocked.length}</strong></div><div class="detail-stat"><span>Future Hook</span><strong>Boss Challenges</strong></div>`;
+    list.innerHTML = Object.values(CHAPTER_CONFIG).map((meta)=>{
+      const progress = getChapterProgress(meta.id);
       const pct = Math.round((progress.completed / progress.total) * 100);
-      return `<article class="chapter-card ${selected===chapter?'is-selected':''} ${locked?'is-locked':''}" data-chapter-id="${chapter}">
-        <div class="chap-num">${meta.chapterLabel}</div>
+      return `<article class="chapter-card ${selected===meta.id?'is-selected':''} ${!progress.unlocked?'is-locked':''}" data-chapter-id="${meta.id}">
+        <div class="chap-num">${meta.label}</div>
         <div>
           <div class="chap-title">${meta.title}</div>
           <div class="chap-sub">${meta.subtitle}</div>
-          <div class="chap-meta"><span>${meta.act}</span><span>${meta.difficulty}</span><span>${meta.reward}</span></div>
+          <div class="chap-meta"><span>${meta.act}</span><span>Req Lvl ${meta.requiredLevel}</span><span>Rec ${meta.recommendedLevel}</span></div>
           <div class="chapter-progress"><div style="width:${pct}%"></div></div>
         </div>
-        <div class="status-chip">${locked ? 'Locked' : pct >= 100 ? 'Complete' : 'Available'}</div>
+        <div class="status-chip">${!progress.unlocked ? 'Locked' : pct >= 100 ? 'Complete' : 'Available'}</div>
       </article>`;
     }).join('');
-    const current = CHAPTER_UI_DATA[selected] || CHAPTER_UI_DATA[1];
+    const current = CHAPTER_CONFIG[selected] || CHAPTER_CONFIG[1];
     const selectedProgress = getChapterProgress(selected);
-    detail.innerHTML = `<div class="panel-kicker">${current.act}</div><h4>${current.title}</h4><p>${current.lore}</p><div class="detail-stats"><div class="detail-stat"><span>Enemy Read</span><strong>${current.enemy}</strong></div><div class="detail-stat"><span>Reward</span><strong>${current.reward}</strong></div><div class="detail-stat"><span>Difficulty</span><strong>${current.difficulty}</strong></div><div class="detail-stat"><span>Progress</span><strong>${selectedProgress.completed}/${selectedProgress.total}</strong></div></div>`;
+    detail.innerHTML = `<div class="panel-kicker">${current.act}</div><h4>${current.title}</h4><p>${current.lore}</p><div class="detail-stats"><div class="detail-stat"><span>Enemy Read</span><strong>${current.enemy}</strong></div><div class="detail-stat"><span>Reward</span><strong>${current.firstClearReward.coins}c / ${current.firstClearReward.xp}xp</strong></div><div class="detail-stat"><span>Recommended</span><strong>Lvl ${current.recommendedLevel}</strong></div><div class="detail-stat"><span>Progress</span><strong>${selectedProgress.completed}/${selectedProgress.total}</strong></div></div>`;
     const launch = document.getElementById('chapter-launch-btn');
     if(launch){
       launch.disabled = !selectedProgress.unlocked;
-      launch.innerText = selectedProgress.unlocked ? `Enter ${current.chapterLabel}` : 'Locked';
+      launch.innerText = selectedProgress.unlocked ? `Enter ${current.label}` : `Requires Lvl ${current.requiredLevel}`;
       launch.onclick = ()=>startChapter(selected);
     }
     list.querySelectorAll('[data-chapter-id]').forEach((card)=>card.addEventListener('click', ()=>{

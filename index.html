@@ -27,6 +27,11 @@
   <div id="top-chrome" class="top-chrome">
     <button id="btn-ingame-menu" class="chrome-btn" type="button">◀ Menu</button>
     <div id="part-indicator" class="part-indicator"></div>
+    <div id="profile-summary" class="profile-summary-pill">
+      <div class="profile-level">Lvl <span id="profile-level">1</span></div>
+      <div class="profile-xp-track"><div id="profile-xp-fill"></div></div>
+      <div class="profile-xp-text" id="profile-xp-text">0 / 100 XP</div>
+    </div>
     <div id="global-coins" class="currency-pill">🪙 <span id="coin-val">0</span></div>
   </div>
 
@@ -135,6 +140,26 @@
     </div>
   </div>
 
+
+  <div id="reward-screen" class="screen screen-overlay-center">
+    <div class="reward-card ui-panel">
+      <div class="panel-kicker">Reward Summary</div>
+      <h2 id="reward-title" class="screen-title">Battle Rewards</h2>
+      <p id="reward-subtitle" class="screen-copy">Progress updated.</p>
+      <div class="reward-grid">
+        <div class="detail-stat"><span>XP Gained</span><strong id="reward-xp-value">+0 XP</strong></div>
+        <div class="detail-stat"><span>Coins</span><strong id="reward-coin-value">+0 Coins</strong></div>
+        <div class="detail-stat"><span>Current Level</span><strong id="reward-level-value">Level 1</strong></div>
+        <div class="detail-stat"><span>XP Progress</span><strong id="reward-xp-progress">0 / 100</strong></div>
+      </div>
+      <div class="reward-progress-track"><div id="reward-xp-fill"></div></div>
+      <div id="reward-unlocks" class="reward-unlocks"></div>
+      <div class="screen-footer-actions">
+        <button class="primary-btn" id="reward-continue-btn" type="button">Continue</button>
+      </div>
+    </div>
+  </div>
+
   <div id="part-end-screen" class="screen screen-overlay-center">
     <div class="part-end-card" id="partEndCard">
       <div class="pec-top-bar"></div>
@@ -148,6 +173,7 @@
       </div>
       <div class="pec-complete">Complete</div>
       <div class="pec-coins" id="pecCoins">+150 🪙</div>
+      <div class="pec-coins" id="pecXp">+120 XP</div>
       <div class="pec-unlocked" id="pecUnlocked">Part II Unlocked</div>
       <button class="pec-btn" id="part-end-continue" type="button">Continue ▶</button>
       <div class="pec-bottom-bar"></div>
@@ -295,7 +321,13 @@
 <script src="src/core/runtime.js"></script>
 <script src="src/systems/debugSystem.js"></script>
 <script src="src/data/storyData.js"></script>
+<script src="src/data/levels.js"></script>
+<script src="src/data/economyTuning.js"></script>
+<script src="src/data/chapters.js"></script>
 <script src="src/data/weapons.js"></script>
+<script src="src/systems/progressionSystem.js"></script>
+<script src="src/systems/rewardSystem.js"></script>
+<script src="src/systems/progressionDebug.js"></script>
 <script src="src/systems/saveSystem.js"></script>
 <script src="src/ui/core/uiTheme.js"></script>
 <script src="src/ui/core/uiStateStore.js"></script>

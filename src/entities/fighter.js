@@ -47,30 +47,20 @@ class Fighter{
     if(type===20){mhp=420;sp=15;dm=22;} // Final Host — ultimate boss, Part 10
 
     if(isP){
-      mhp=150;sp=7.5;dm=10;
-      // Weapons
-      if(weapon==='knuckle'){dm+=6;}
-      if(weapon==='dagger'){dm+=8;sp+=2;}
-      if(weapon==='katana'){dm+=11;sp+=1;}
-      if(weapon==='staff'){dm+=7;sp+=0.5;}
-      
-      if(weapon==='scythe'){dm+=14;sp-=1;}
-      if(weapon==='claws'){dm+=7;sp+=2.5;}
-      if(weapon==='hammer'){dm+=13;sp-=0.5;}
-      // Armor
-      if(armor==='lightarmor'){mhp+=25;}
-      if(armor==='heavyarmor'){mhp+=50;sp-=0.8;}
-      if(armor==='voidarmor'){mhp+=70;sp-=0.5;}
-      // Upgrades
-      dm+=strengthUpg===1?5:(strengthUpg>=2?15:0);
-      sp+=speedUpg===1?2:(speedUpg>=2?4:0);
-      mhp+=enduranceUpg===1?30:(enduranceUpg>=2?70:0);
+      const playerStats = getPlayerCombatStats();
+      mhp = playerStats.maxHp;
+      sp = playerStats.speed;
+      dm = playerStats.damage;
+      this.defense = playerStats.defense;
+      this.absorption = playerStats.absorption;
+      this.rageTier = playerStats.rageTier;
+      this.enduranceRegen = playerStats.enduranceRegen;
     }
     this.maxHp=mhp;this.hp=mhp;this.spd=sp;this.dmg=dm;
-    this.defense=isP?(armor==='lightarmor'?3:armor==='heavyarmor'?6:armor==='voidarmor'?9:0):0;
-    this.absorption=isP&&armor==='voidarmor'?0.1:0;
-    this.rageTier=isP&&rageMode2?2:1;
-    this.enduranceRegen=isP&&enduranceUpg>=1;
+    this.defense=this.defense||0;
+    this.absorption=this.absorption||0;
+    this.rageTier=this.rageTier||1;
+    this.enduranceRegen=!!this.enduranceRegen;
     this.vx=0;this.vy=0;this.dir=isP?1:-1;
     this.state='idle';this.atkT=0;this.hitT=0;
     this.rage=0;this.rageActive=false;

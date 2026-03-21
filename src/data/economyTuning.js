@@ -1,0 +1,56 @@
+const ECONOMY_TUNING = {
+  currencies: {
+    startingCoins: 120,
+    startingPremium: 0,
+  },
+  baseFightRewards: {
+    1: { xp: 45, coins: 28 },
+    2: { xp: 65, coins: 40 },
+    3: { xp: 80, coins: 55 },
+    4: { xp: 95, coins: 62 },
+    5: { xp: 115, coins: 75 },
+    6: { xp: 130, coins: 86 },
+    7: { xp: 145, coins: 94 },
+    8: { xp: 160, coins: 105 },
+    9: { xp: 175, coins: 120 },
+    10: { xp: 205, coins: 145 },
+    11: { xp: 225, coins: 170 },
+    12: { xp: 240, coins: 180 },
+    13: { xp: 260, coins: 195 },
+    14: { xp: 285, coins: 210 },
+    15: { xp: 305, coins: 225 },
+    16: { xp: 325, coins: 240 },
+    17: { xp: 345, coins: 255 },
+    18: { xp: 390, coins: 285 },
+    19: { xp: 420, coins: 320 },
+    20: { xp: 480, coins: 360 },
+  },
+  rewardMultipliers: {
+    replay: 0.55,
+    lossXp: 0.35,
+    lossCoins: 0.1,
+    boss: 1.2,
+  },
+  firstClearBonus: {
+    xp: 28,
+    coins: 24,
+  },
+  chapterClearRewards: {
+    1: { xp: 120, coins: 150 },
+    2: { xp: 180, coins: 230 },
+    3: { xp: 260, coins: 320 },
+  },
+  upgradeCosts: {
+    weapons: { base: 90, growth: 1.55, maxLevel: 5 },
+    armor: { base: 80, growth: 1.45, maxLevel: 4 },
+  },
+  statGrowth: {
+    levelDamage: 1.2,
+    levelHp: 8,
+    levelSpeed: 0.08,
+    weaponDamagePerUpgrade: 2,
+    weaponRangePerUpgrade: 2,
+    armorHpPerUpgrade: 10,
+    armorDefensePerUpgrade: 1,
+  }
+};

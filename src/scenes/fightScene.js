@@ -61,8 +61,6 @@ function checkRound(){
   if(pWon){
     pWins++;
     document.getElementById(`pr${pWins}`).classList.add('won');
-    let rew=20;if(fType>3)rew=40;if(BOSS_FIGHT_TYPES.includes(fType))rew=150;updateCoins(rew);
-    // Endurance regen on win
     if(player.enduranceRegen&&player.hp>0)player.hp=Math.min(player.maxHp,player.hp+20);
     saveGame();
   } else {
@@ -78,14 +76,30 @@ function endMatch(win){
   setEnvRage(false);UI.ctrls.style.display='none';UI.kbhint.style.display='none';
   startMusicTheme('story');
   switchToNormalBg();
+  const rewardSummary = grantFightRewards({ part: currentPart, fightType: fType, won: win });
+  saveGame();
   if(win){
-    clearPendingFight();checkpointStory(currentPart,scIdx+1);
-    updateChapterUnlock(currentPart+1);scIdx++;
-    applyPartBg(currentPart);
-    showScreen('story-screen');gameState='story';advance(true);
+    clearPendingFight(); checkpointStory(currentPart,scIdx+1); updateChapterUnlock(currentPart+1); scIdx++; applyPartBg(currentPart); markPartCleared(currentPart);
+    showRewardScreen({
+      title: 'Victory Rewards',
+      subtitle: rewardSummary.firstClear ? 'First clear bonus secured.' : 'Replay rewards collected.',
+      xp: rewardSummary.xp,
+      coins: rewardSummary.coins,
+      levelsGained: rewardSummary.levelsGained,
+      unlockedItems: rewardSummary.unlockedItems,
+      firstClear: rewardSummary.firstClear,
+    }, ()=>{ showScreen('story-screen'); gameState='story'; advance(true); });
   } else {
     setPendingFight(currentPart,scIdx,fType);
-    showBanner('DEFEATED',()=>{showScreen('story-screen');gameState='story';advance(true);},2000);
+    showRewardScreen({
+      title: 'Defeat Rewards',
+      subtitle: 'You still gained a small amount of experience.',
+      xp: rewardSummary.xp,
+      coins: rewardSummary.coins,
+      levelsGained: rewardSummary.levelsGained,
+      unlockedItems: rewardSummary.unlockedItems,
+      firstClear: false,
+    }, ()=>{ showScreen('story-screen'); gameState='story'; advance(true); });
   }
 }
 

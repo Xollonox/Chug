@@ -211,3 +211,14 @@ button { font: inherit; }
   .screen-hud{padding:10px 10px 150px;}
   .fighter-plate{padding:14px;}
 }
+.profile-summary-pill{display:none;min-width:220px;padding:10px 14px 12px;border-radius:20px;background:rgba(4,5,8,0.82);border:1px solid var(--border);box-shadow:0 10px 24px rgba(0,0,0,0.35);pointer-events:none;}
+.profile-level{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-light);margin-bottom:8px;}
+.profile-xp-track,.reward-progress-track{height:10px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
+#profile-xp-fill,#reward-xp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan), var(--gold-light));}
+.profile-xp-text{margin-top:7px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);}
+.reward-card{position:relative;padding:32px;max-width:min(560px, 96vw);width:100%;display:grid;gap:18px;pointer-events:auto;}
+.reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.reward-unlocks{display:flex;flex-wrap:wrap;gap:10px;min-height:26px;}
+.reward-unlocks .chap-meta{margin:0;}
+.armory-actions button:disabled,.primary-btn:disabled,.secondary-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+@media (max-width:760px){.profile-summary-pill{min-width:160px;padding:8px 10px;}.reward-grid{grid-template-columns:1fr;}}
