@@ -34,30 +34,30 @@ const UI={
 const K={l:0,r:0,j:0,a:0,k:0,g:0,t:0,rage:0};
 window.addEventListener('keydown',e=>{
   if(e.code==='Space'&&gameState==='story'){e.preventDefault();advance();return;}
-  if(e.key==='a'||e.key==='ArrowLeft')K.l=1;
-  if(e.key==='d'||e.key==='ArrowRight')K.r=1;
-  if(e.key==='w'||e.key==='ArrowUp')K.j=1;
-  if(e.key==='f')K.a=1;
-  if(e.key==='k')K.k=1;
-  if(e.key==='g'||e.key==='G')K.g=1;
-  if(e.key==='t'||e.key==='T')K.t=1;
-  if(e.key==='r'||e.key==='R')K.rage=1;
+  if(e.key==='a'||e.key==='ArrowLeft'){K.l=1;setBufferedInput('l',true);}
+  if(e.key==='d'||e.key==='ArrowRight'){K.r=1;setBufferedInput('r',true);}
+  if(e.key==='w'||e.key==='ArrowUp'){K.j=1;setBufferedInput('j',true);}
+  if(e.key==='f'){K.a=1;setBufferedInput('a',true);}
+  if(e.key==='k'){K.k=1;setBufferedInput('k',true);}
+  if(e.key==='g'||e.key==='G'){K.g=1;setBufferedInput('g',true);}
+  if(e.key==='t'||e.key==='T'){K.t=1;setBufferedInput('t',true);}
+  if(e.key==='r'||e.key==='R'){K.rage=1;setBufferedInput('rage',true);}
 });
 window.addEventListener('keyup',e=>{
-  if(e.key==='a'||e.key==='ArrowLeft')K.l=0;
-  if(e.key==='d'||e.key==='ArrowRight')K.r=0;
-  if(e.key==='w'||e.key==='ArrowUp')K.j=0;
-  if(e.key==='f')K.a=0;
-  if(e.key==='k')K.k=0;
-  if(e.key==='g'||e.key==='G')K.g=0;
-  if(e.key==='t'||e.key==='T')K.t=0;
-  if(e.key==='r'||e.key==='R')K.rage=0;
+  if(e.key==='a'||e.key==='ArrowLeft'){K.l=0;setBufferedInput('l',false);}
+  if(e.key==='d'||e.key==='ArrowRight'){K.r=0;setBufferedInput('r',false);}
+  if(e.key==='w'||e.key==='ArrowUp'){K.j=0;setBufferedInput('j',false);}
+  if(e.key==='f'){K.a=0;setBufferedInput('a',false);}
+  if(e.key==='k'){K.k=0;setBufferedInput('k',false);}
+  if(e.key==='g'||e.key==='G'){K.g=0;setBufferedInput('g',false);}
+  if(e.key==='t'||e.key==='T'){K.t=0;setBufferedInput('t',false);}
+  if(e.key==='r'||e.key==='R'){K.rage=0;setBufferedInput('rage',false);}
 });
 function bindBtn(id,key){
   const el=document.getElementById(id);
   if(!el)return;
-  const dn=e=>{e.preventDefault();K[key]=1;el.classList.add('pressed');};
-  const up=e=>{e.preventDefault();K[key]=0;el.classList.remove('pressed');};
+  const dn=e=>{e.preventDefault();K[key]=1;setBufferedInput(key,true);el.classList.add('pressed');};
+  const up=e=>{e.preventDefault();K[key]=0;setBufferedInput(key,false);el.classList.remove('pressed');};
   ['touchstart','pointerdown','mousedown'].forEach(ev=>el.addEventListener(ev,dn,{passive:false}));
   ['touchend','touchcancel','pointerup','pointerleave','mouseup','mouseleave'].forEach(ev=>el.addEventListener(ev,up,{passive:false}));
 }

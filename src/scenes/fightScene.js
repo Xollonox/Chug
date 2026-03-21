@@ -26,9 +26,9 @@ function startRound(n){
   const cd=document.getElementById('combo-display');if(cd)cd.style.display='none';
   showScreen('hud-screen');
   UI.ctrls.style.display='flex';UI.kbhint.style.display='block';
-  player=new Fighter(Math.min(150,W*0.15),true);player.rage=fType>1?50:0;
+  player=new Fighter(Math.min(150,W*0.15),true);player.rage=fType>1?50:0;resetCombatState(player);
   setEnvRage(false);
-  enemy=new Fighter(Math.max(W-260,W*0.75),false,fType);
+  enemy=new Fighter(Math.max(W-260,W*0.75),false,fType);resetCombatState(enemy);
   resetDots();
   UI.ename.innerText=ENEMY_NAMES[fType]||'SHADOW';
   const isBossFight=BOSS_FIGHT_TYPES.includes(fType);
@@ -99,11 +99,14 @@ function drawDebugOverlay(){
     `round ${curRound} timer ${timeLeft} combo ${comboCount}`
   ];
   rows.forEach((row,index)=>ctx.fillText(row,24,H-88+(index*18)));
+  const playerSnap=createCombatSnapshot(player);
+  ctx.fillText(`move ${playerSnap.moveId} / ${playerSnap.phase}`,24,H-16);
   ctx.restore();
 }
 
 function loop(){
   requestAnimationFrame(loop);
+  updateInputBuffers();
   if(gameState==='menu'){
     if(Math.random()>0.7)particles.push({x:Math.random()*W,y:H-110-Math.random()*220,
       vx:(Math.random()-.5)*0.3,vy:-Math.random()*0.5-0.15,life:1,
@@ -169,6 +172,7 @@ function loop(){
     ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.shadowColor='transparent';
     if(enemy&&(gameState==='fight'||gameState==='post'))enemy.draw(ctx);
     if(player)player.draw(ctx);
+    if(debugMode){updateCombatDebugDraw(ctx, player);updateCombatDebugDraw(ctx, enemy);}
 
     ctx.globalAlpha=1;ctx.shadowBlur=0;
     ctx.textAlign='center';

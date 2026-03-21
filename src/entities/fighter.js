@@ -77,377 +77,178 @@ class Fighter{
     this.stamina=100;this.maxStam=100;
     this.combo=0;this.cWin=0;this.atkType='p';this.hitF=0;
     this.rotation=0;this.landAnim=0;
+    this.combatState=COMBAT_STATE.IDLE;this.attackPhase='none';this.currentMove=null;this.attackTimer=0;
+    this.hitTargets=new Set();this.queuedMoveId=null;this.comboChain=0;this.comboTimer=0;
+    this.stunFrames=0;this.blockFrames=0;this.knockdownFrames=0;this.blockIntent=false;this.lastAttackOutcome='none';
     this.grabber=null;
     this.grabHits=0; // tracks how many times grabbed in current grab_exec
     // shadow effect vars
     this.trailX=[];this.trailY=[];
+    this.aiProfile=getEnemyCombatProfile(type);
   }
   get raging(){return this.isP&&this.rageActive;}
 
-  update(en){
-    const wasAir=this.y<GND-0.5;
+  get isAirborne(){return this.y < GND - 8;}
 
-    // Trail
-    if(this.isP&&(this.raging||this.state==='run')){
+  updateTrail(){
+    if(this.isP && (this.raging || this.state==='run')){
       this.trailX.unshift(this.x+this.w/2);
       this.trailY.unshift(this.y-this.h/2);
       if(this.trailX.length>6){this.trailX.pop();this.trailY.pop();}
-    } else {this.trailX=[];this.trailY=[];}
-
-    // Weapon swing trail during attack
-    if(this.isP&&this.state==='atk'&&weapon!=='none'){
-      const wx=this.x+this.w/2+(this.dir===1?this.w*0.5:-this.w*0.3);
-      const wy=this.y-this.h*0.55;
-      const swingCol={knuckle:'rgba(255,180,50,0.5)',dagger:'rgba(100,200,255,0.4)',
-        katana:'rgba(255,255,200,0.6)',staff:'rgba(200,147,26,0.4)',
-        scythe:'rgba(150,100,255,0.5)',
-        claws:'rgba(180,180,255,0.45)',hammer:'rgba(255,120,0,0.4)'}[weapon]||'rgba(255,255,255,0.3)';
-      if(Math.random()>0.4){
-        particles.push({x:wx+(Math.random()-.5)*20,y:wy+(Math.random()-.5)*30,
-          vx:this.dir*(Math.random()*4+1),vy:-Math.random()*3,
-          life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
-      }
-    }
-
-    if(this.isP){
-      if(K.rage&&this.rage>=100&&!this.rageActive){
-        this.rageActive=true;setEnvRage(true);beep(60,'sawtooth',0.6,0.12);
-        screenShake=18;doFlash();
-        shadowSlash(this.x+this.w/2,this.y,this.dir,'#ff4400');
-      }
-      if(this.rageActive){
-        this.rage-=0.15;
-        if(this.rage<=0){this.rage=0;this.rageActive=false;setEnvRage(false);}
-      }
-      // Stamina regen
-      if(this.state!=='atk'&&this.stamina<this.maxStam)this.stamina=Math.min(this.maxStam,this.stamina+0.4);
-      updateHUD();
-    }
-
-    if(this.hp<=0){
-      if(this.state==='grabbed')return;
-      // Fall to ground with friction, no flying
-      this.vx*=0.85;
-      if(this.y<GND){
-        this.vy+=1.2;
-        this.rotation+=0.06*this.dir;
-        // Clamp Y — never disappear off top
-        if(this.y<H*0.1){this.y=H*0.1;this.vy=Math.max(0,this.vy);}
-      }
-      this.x=Math.max(10,Math.min(this.x+this.vx,W-this.w-10));
-      this.y=Math.min(this.y+this.vy,GND);
-      if(this.y>=GND){this.y=GND;this.vy=0;this.vx=0;this.rotation=Math.PI/2*-this.dir;}
-      return;
-    }
-
-    // grab_exec
-    if(this.state==='grab_exec'){
-      this.vx=0;this.vy=0;
-      this.atkT--;
-      let t=60-this.atkT;
-
-      // ── DOUBLE GRAB: Press GRAB again during swing to do second slam ──
-      if(this.isP&&K.g&&t>=20&&t<38&&this.grabHits===0&&this.atkT>10){
-        // Reset swing for second slam
-        this.grabHits=1;
-        this.atkT=50; // restart swing timer
-        K.g=0;
-        beep(120,'sawtooth',0.2,0.08);
-      }
-
-      // ── THROW: Press THROW during hold phase to launch enemy forward ──
-      if(this.isP&&K.t&&t>38&&this.atkT>0){
-        // Launch enemy as a throw projectile forward
-        en.state='hit';en.hitT=30;
-        en.vx=this.dir*18;en.vy=-5;en.rotation=0;
-        let throwDmg=this.dmg*1.8;
-        if(this.raging)throwDmg*=(this.rageTier===2?1.9:1.5);
-        let finalThrowDmg=Math.max(1,throwDmg-(en.defense||0));
-        if(en.absorption)finalThrowDmg*=(1-en.absorption);
-        en.hp=Math.max(0,en.hp-finalThrowDmg);
-        floatingTexts.push({x:en.x+en.w/2,y:en.y-en.h,t:Math.floor(finalThrowDmg),life:1,vy:-2.5,col:'#ff5500',size:30});
-        shadowSlash(en.x+en.w/2,en.y-en.h*0.5,this.dir,'rgba(255,120,0,0.9)');
-        bloodSplatter(en.x+en.w/2,en.y,this.dir,true);
-        for(let i=0;i<18;i++)landDust.push({x:en.x+en.w/2,y:GND-3,vx:(Math.random()-.5)*16,vy:-Math.random()*5,life:1,w:Math.random()*14+6,col:'rgba(255,160,60,0.3)'});
-        screenShake=18;doFlash();beep(80,'sawtooth',0.4,0.15);
-        if(this.isP&&!this.rageActive)this.rage=Math.min(100,this.rage+40);
-        this.state='idle';this.atkT=0;this.grabHits=0;
-        K.t=0;
-        if(en.hp<=0){checkRound();return;}
-        return;
-      }
-
-      // Normal grab_exec spin animation
-      if(t<40){
-        let progress=t/40;
-        let curAngle=(this.dir===1?0:Math.PI)+(this.dir===1?Math.PI:-Math.PI)*progress;
-        let radius=100*this.scale;
-        en.x=this.x+this.w/2+Math.cos(curAngle)*radius-en.w/2;
-        en.y=this.y-30*this.scale-Math.sin(curAngle)*radius;
-        en.rotation=progress*Math.PI*1.5*-this.dir;
-      } else {
-        en.x=this.x+this.w/2-this.dir*100*this.scale-en.w/2;
-        en.y=GND-5;
-        en.rotation=Math.PI/2*-this.dir;
-      }
-      en.x=Math.max(10,Math.min(en.x,W-en.w-10));
-      if(t===40){
-        screenShake=22;
-        let d=this.dmg*2.5;
-        if(this.raging)d*=(this.rageTier===2?1.9:1.5);
-        let finalDmg=Math.max(1,d-(en.defense||0));
-        if(en.absorption)finalDmg*=(1-en.absorption);
-        en.hp=Math.max(0,en.hp-finalDmg);
-        floatingTexts.push({x:en.x+en.w/2,y:en.y-en.h,t:Math.floor(finalDmg),life:1,vy:-2.5,col:this.isP?'#ff003c':'#fff',size:28});
-        bloodSplatter(en.x+en.w/2,GND,-this.dir,true);
-        shadowSlash(en.x+en.w/2,GND,this.dir,'#660000');
-        for(let i=0;i<22;i++)landDust.push({x:en.x+en.w/2,y:GND-3,vx:(Math.random()-.5)*14,vy:-Math.random()*6,life:1,w:Math.random()*16+8,col:'rgba(180,180,180,0.25)'});
-        beep(90,'sawtooth',0.35,0.18);
-        if(en.hp<=0){this.grabHits=0;checkRound();return;}
-        if(this.isP&&!this.rageActive){this.rage=Math.min(100,this.rage+35);}
-      }
-      if(this.atkT<=0){
-        this.grabHits=0;
-        this.state='idle';
-        if(en.hp>0){en.state='hit';en.hitT=20;en.vx=-this.dir*10;en.vy=-2;}
-        else{en.state='idle';}
-      }
-      return;
-    }
-
-    if(this.state==='grabbed'){this.vx=0;this.vy=0;return;}
-
-    if(this.y>=GND)this.vy=0;
-    const landed=wasAir&&this.y>=GND;
-    if(landed){
-      this.landAnim=12;
-      for(let i=0;i<12;i++)landDust.push({x:this.x+this.w/2,y:this.y-3,vx:(Math.random()-.5)*7,vy:-Math.random()*2.5,life:0.9,w:Math.random()*14+6,col:'rgba(140,140,140,0.3)'});
-      beep(120,'sine',0.06,0.04);
-    }
-    if(this.landAnim>0)this.landAnim--;
-
-    if(this.state!=='grabbed'&&this.hp>0&&this.hitT<=0){this.rotation=0;}
-    if(this.hitT>0){this.hitT--;this.vx*=0.83;if(this.y<GND)this.rotation+=0.15*this.dir;}
-    else if(this.atkT>0){
-      this.atkT--;this.vx*=0.78;
-      if(this.atkT===this.hitF){
-        let reach=(this.type===3||this.type===6||this.type===8||this.type===10||this.type===13||this.type===14||this.type===15||this.type===18||this.type===19)?115*this.scale:78*this.scale;
-        if(this.atkType==='k')reach+=32*this.scale;
-        if(this.atkType==='slam')reach+=58*this.scale;
-        if(this.atkType==='throw')reach+=20*this.scale;
-        if(this.combo>=3)reach+=38*this.scale;
-        if(this.raging)reach+=28*this.scale;
-        if(this.isP&&weapon==='dagger')reach+=22*this.scale;
-        if(this.isP&&weapon==='katana')reach+=40*this.scale;
-        if(this.isP&&weapon==='staff'){reach+=55*this.scale;}
-        
-        if(this.isP&&weapon==='scythe')reach+=90*this.scale;
-        if(this.isP&&weapon==='claws')reach+=18*this.scale;
-        if(this.isP&&weapon==='hammer')reach+=45*this.scale;
-
-        // Staff always hits at head height
-        const staffHeadY=this.isP&&weapon==='staff'?this.y-this.h*0.85:null;
-        const airAttack=this.isP&&this.y<GND-20;
-        const hx=this.dir===1?this.x+this.w:this.x-reach;
-        const hy=staffHeadY!==null?staffHeadY:
-          airAttack?(this.y-this.h*0.3): // aerial - hit center mass
-          (this.y-(this.atkType==='k'?(this.combo>=3?80:30):(this.atkType==='slam'?35:(this.atkType==='throw'?40:60)))*this.scale);
-        // Aerial attack: wider vertical hit window
-        const enTop=airAttack?(en.y-en.h*1.2):en.y-en.h;
-        if(hx<en.x+en.w&&hx+reach>en.x&&hy<en.y&&this.y>enTop){
-          let d=this.dmg,heavy=false;
-          // Jump attack bonus
-          if(this.isP&&this.y<GND-20){d*=1.4;heavy=true;screenShake=8;}
-          if(this.atkType==='k'){d*=1.3;heavy=true;}
-          if(this.atkType==='slam'){d*=2.1;heavy=true;screenShake=15;}
-          if(this.atkType==='throw'){d*=1.7;heavy=true;en.vy=-6;en.vx=this.dir*14;}
-          if(this.combo>=3&&this.atkType!=='slam'&&this.atkType!=='throw'){d*=1.85;heavy=true;}
-          if(this.raging)d*=(this.rageTier===2?1.9:1.5);
-          // Claws do double hit
-          if(this.isP&&weapon==='claws'){
-            en.takeHit(d*0.55,this.dir,false);
-            setTimeout(()=>{if(en&&en.hp>0)en.takeHit(d*0.55,this.dir,false);},60);
-          } else {
-            en.takeHit(d,this.dir,heavy);
-          }
-          // Shadow slash FX on hit
-          shadowSlash(en.x+en.w/2,en.y-en.h*0.5,this.dir,this.isP?'rgba(255,80,80,0.5)':'rgba(200,200,200,0.3)',heavy);
-          if(this.isP)weaponImpactFX(en.x+en.w/2,en.y,this.dir,weapon,heavy);
-          if(this.isP){
-            // Combo tracking
-            const now=Date.now();
-            if(now-lastComboTime<2200){comboCount++;}else{comboCount=1;}
-            lastComboTime=now;
-            showCombo(comboCount);
-          }
-          if(this.atkType==='slam'){for(let i=0;i<16;i++)landDust.push({x:en.x+en.w/2,y:GND-3,vx:(Math.random()-.5)*10,vy:-Math.random()*3.5,life:1,w:Math.random()*15+8,col:'rgba(160,160,160,0.22)'});}
-          if(this.isP&&!this.rageActive){this.rage=Math.min(100,this.rage+(this.atkType==='k'?28:this.atkType==='slam'?36:this.atkType==='throw'?30:18));}
-        }
-      }
     } else {
-      this.cWin>0?this.cWin--:this.combo=0;
+      this.trailX=[];this.trailY=[];
+    }
+  }
+
+  updateWeaponTrail(){
+    if(!this.isP || this.state!=='atk' || weapon==='none')return;
+    const wx=this.x+this.w/2+(this.dir===1?this.w*0.5:-this.w*0.3);
+    const wy=this.y-this.h*0.55;
+    const swingCol={knuckle:'rgba(255,180,50,0.5)',dagger:'rgba(100,200,255,0.4)',katana:'rgba(255,255,200,0.6)',staff:'rgba(200,147,26,0.4)',scythe:'rgba(150,100,255,0.5)',claws:'rgba(180,180,255,0.45)',hammer:'rgba(255,120,0,0.4)'}[weapon]||'rgba(255,255,255,0.3)';
+    if(Math.random()>0.4){
+      particles.push({x:wx+(Math.random()-.5)*20,y:wy+(Math.random()-.5)*30,vx:this.dir*(Math.random()*4+1),vy:-Math.random()*3,life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
+    }
+  }
+
+  updateRageMode(){
+    if(this.isP && consumeBufferedInput('rage') && this.rage>=100 && !this.rageActive){
+      this.rageActive=true;setEnvRage(true);beep(60,'sawtooth',0.6,0.12);
+      screenShake=18;doFlash();shadowSlash(this.x+this.w/2,this.y,this.dir,'#ff4400');
+    }
+    if(this.rageActive){
+      this.rage-=0.15;
+      if(this.rage<=0){this.rage=0;this.rageActive=false;setEnvRage(false);}
+    }
+  }
+
+  updateStamina(){
+    if(this.combatState!==COMBAT_STATE.ATTACK_STARTUP&&this.combatState!==COMBAT_STATE.ATTACK_ACTIVE&&this.combatState!==COMBAT_STATE.ATTACK_RECOVERY&&this.stamina<this.maxStam){
+      this.stamina=Math.min(this.maxStam,this.stamina+0.45);
+    }
+  }
+
+  updateFacing(opponent){
+    if(this.combatState===COMBAT_STATE.ATTACK_STARTUP||this.combatState===COMBAT_STATE.ATTACK_ACTIVE||this.combatState===COMBAT_STATE.ATTACK_RECOVERY)return;
+    const delta=(opponent.x+opponent.w/2)-(this.x+this.w/2);
+    if(Math.abs(delta)>12)this.dir=delta>=0?1:-1;
+  }
+
+  updateMovement(opponent){
+    if(this.hp<=0){
+      this.vx*=0.84;
+      if(this.isAirborne){this.vy+=1.15;this.rotation+=0.06*this.dir;}
+      this.applyPhysics();
+      return;
+    }
+
+    if(updateStunState(this)){
+      this.applyPhysics();
+      return;
+    }
+
+    if(this.currentMove){
+      this.vx*=this.currentMove.movementLock;
+      updateAttackState(this,opponent);
+      this.applyPhysics();
+      return;
+    }
+
+    const desiredMove = this.isP ? readPlayerMoveIntent(this) : readEnemyMoveIntent(this,opponent);
+    if(desiredMove)queueMove(this, desiredMove);
+
+    if(!isCombatLocked(this)){
       if(this.isP){
-        if(K.l){this.vx=-this.spd;this.dir=-1;this.state='run';}
-        else if(K.r){this.vx=this.spd;this.dir=1;this.state='run';}
-        else{this.vx=0;this.state='idle';}
-        if(K.j&&this.y>=GND-0.5){this.vy=-18;this.state='jump';beep(280,'sine',0.1);}
-
-        // ── JUMP ATTACK: Punch or Kick while airborne ──
-        const isAirborne=this.y<GND-20;
-        if(isAirborne&&this.atkT<=0){
-          if(K.k&&this.stamina>=12){
-            this.stamina=Math.max(0,this.stamina-12);
-            this.vy=Math.max(this.vy,6); // push downward
-            this.attack('k');
-            shadowSlash(this.x+this.w/2,this.y,this.dir,'rgba(0,200,220,0.7)');
-          } else if(K.a&&this.stamina>=8){
-            this.stamina=Math.max(0,this.stamina-8);
-            this.attack('p');
-          }
+        const movingLeft = isInputHeld('left');
+        const movingRight = isInputHeld('right');
+        if(consumeBufferedInput('jump') && !this.isAirborne){
+          this.vy=-18;setCombatState(this,COMBAT_STATE.JUMP_RISE);beep(280,'sine',0.1,0.04);
         }
-
-        let fwdPunch=(K.a&&((this.dir===1&&K.r)||(this.dir===-1&&K.l)));
-        let tryGrab=K.g||fwdPunch;
-        let inGrabRange=Math.abs((this.x+this.w/2)-(en.x+en.w/2))<115*Math.max(this.scale,en.scale)
-          &&en.y>=GND-1&&en.hitT<=0&&en.state!=='grabbed'&&en.state!=='grab_exec'&&en.state!=='hit';
-
-        // THROW button — quick grab-and-launch without full swing
-        if(K.t&&inGrabRange){
-          this.state='grab_exec';this.atkT=45;this.grabHits=99; // 99 = skip second-slam prompt, go straight to throw window
-          en.state='grabbed';en.hitT=45;en.grabber=this;en.vx=0;en.vy=0;
-          K.t=0;
-          beep(200,'sawtooth',0.15,0.07);
-        } else if(tryGrab&&inGrabRange){
-          this.state='grab_exec';this.atkT=60;this.grabHits=0;en.state='grabbed';en.hitT=60;en.grabber=this;en.vx=0;en.vy=0;
-          if(K.g)K.g=0;
-        } else if(K.g||(K.a&&K.k)){
-          this.attack('slam');if(K.g)K.g=0;K.a=0;K.k=0;
-        } else if(K.a){
-          if(this.stamina>=8){this.stamina=Math.max(0,this.stamina-8);this.attack('p');}
-        } else if(K.k){
-          if(this.stamina>=12){this.stamina=Math.max(0,this.stamina-12);this.attack('k');}
+        if(!this.isAirborne){
+          if(movingLeft&&!movingRight){this.vx=-this.spd;setCombatState(this,COMBAT_STATE.WALK);}
+          else if(movingRight&&!movingLeft){this.vx=this.spd;setCombatState(this,COMBAT_STATE.WALK);}
+          else{this.vx=0;setCombatState(this,COMBAT_STATE.IDLE);}
         }
       } else {
-        const dist=this.x-en.x;this.dir=dist>0?-1:1;
-        const abs=Math.abs(dist),rng=(this.type===3||this.type===6||this.type===8||this.type===10||this.type===13||this.type===14||this.type===15||this.type===18||this.type===19)?130*this.scale:88*this.scale;
-        if(abs>rng){this.vx=this.dir*this.spd;this.state='run';}
-        else{
-          this.vx=0;this.state='idle';
-          let ag=0.04;
-          if(this.type===2)ag=0.08;if(this.type===3)ag=0.06;if(this.type===4)ag=0.13;
-          if(this.type===5)ag=0.07;if(this.type===6)ag=0.09;if(this.type===7)ag=0.15;
-          if(this.type===8)ag=0.10;if(this.type===9)ag=0.14;if(this.type===10)ag=0.055;
-          if(this.type===11)ag=0.18; // erratic — very aggressive but sometimes freezes
-          if(this.type===12)ag=0.13; // evolved — methodical, punishes mistakes
-          if(this.type===13)ag=0.16; // sync wave — relentless boss
-          if(this.type===14)ag=0.20; // rewrite — max aggression, perfect timing
-          if(this.type===15)ag=0.22; // memory erasure — chaotic bursts
-          if(this.type===16)ag=0.18; // interference wave — fast unpredictable
-          if(this.type===17)ag=0.20; // pressure wave — relentless
-          if(this.type===18)ag=0.24; // the delay — mirrors and counters
-          if(this.type===19)ag=0.26; // final interference — max aggression
-          if(this.type===20)ag=0.30; // final host — perfect timing, reads everything
-          if(this.type===8||this.type===9||this.type===11||this.type===12||this.type===16||this.type===19){
-            if(en.state==='atk'&&Math.random()<0.22){this.vy=-14;this.state='jump';}
-          }
-          let inGrabRange=abs<115*Math.max(this.scale,en.scale)&&en.y>=GND-1
-            &&en.state!=='grabbed'&&en.state!=='grab_exec'&&en.state!=='hit';
-          if(Math.random()<0.022&&inGrabRange){
-            this.state='grab_exec';this.atkT=60;en.state='grabbed';en.hitT=60;en.grabber=this;en.vx=0;en.vy=0;
-          } else if(Math.random()<0.02&&abs<135){
-            this.attack('slam');
-          } else if(Math.random()<ag){
-            this.attack(Math.random()>.38?'p':'k');
-          }
+        const distance=(opponent.x+opponent.w/2)-(this.x+this.w/2);
+        const profile=this.aiProfile;
+        const gap=Math.abs(distance);
+        if(gap>profile.preferredRange+6){
+          this.vx=Math.sign(distance)*this.spd;
+          setCombatState(this,COMBAT_STATE.WALK);
+        } else if(gap<profile.preferredRange-24){
+          this.vx=-Math.sign(distance)*this.spd*0.55;
+          setCombatState(this,COMBAT_STATE.WALK);
+        } else {
+          this.vx=0;
+          if(this.combatState!==COMBAT_STATE.BLOCK_STUN)setCombatState(this,COMBAT_STATE.IDLE);
+        }
+        if(opponent.currentMove && opponent.attackPhase==='active' && gap<90 && Math.random()<0.03 && !this.isAirborne){
+          this.vy=-14;setCombatState(this,COMBAT_STATE.JUMP_RISE);
         }
       }
     }
+
+    this.applyPhysics();
+  }
+
+  applyPhysics(){
+    const wasAir=this.isAirborne;
     if(this.y<GND){
-      // Stronger gravity when high up — pulls fighters back down faster
       const heightFactor=Math.max(1,(GND-this.y)/200);
       this.vy+=0.9*heightFactor;
-      this.state='jump';
-      // Hard ceiling — never go above top 10% of screen
+      if(this.vy<0)setCombatState(this,COMBAT_STATE.JUMP_RISE);
+      else if(this.combatState!==COMBAT_STATE.ATTACK_STARTUP&&this.combatState!==COMBAT_STATE.ATTACK_ACTIVE&&this.combatState!==COMBAT_STATE.ATTACK_RECOVERY)setCombatState(this,COMBAT_STATE.FALL);
       if(this.y<H*0.1){this.y=H*0.1;this.vy=Math.max(0,this.vy);}
     }
-    const cs=this.raging?this.vx*1.5:this.vx;
+    const cs=this.raging?this.vx*1.35:this.vx;
     this.x=Math.max(10,Math.min(this.x+cs,W-this.w-10));
     this.y=Math.min(this.y+this.vy,GND);
-    // Hard floor clamp
-    if(this.y>=GND){this.y=GND;this.vy=0;}
+    if(this.y>=GND){
+      this.y=GND;this.vy=0;
+      if(wasAir){
+        this.landAnim=10;
+        for(let i=0;i<8;i++)landDust.push({x:this.x+this.w/2,y:this.y-3,vx:(Math.random()-.5)*7,vy:-Math.random()*2.5,life:0.9,w:Math.random()*14+6,col:'rgba(140,140,140,0.3)'});
+      }
+      if(this.combatState===COMBAT_STATE.JUMP_RISE||this.combatState===COMBAT_STATE.FALL)setCombatState(this,COMBAT_STATE.IDLE);
+    }
+    if(this.landAnim>0)this.landAnim--;
     if(this.raging&&this.hp>0){for(let i=0;i<3;i++)fireAt(this.x,this.y,cs);}
   }
 
+  update(opponent){
+    this.updateTrail();
+    this.updateWeaponTrail();
+    this.updateRageMode();
+    this.updateStamina();
+    this.updateFacing(opponent);
+    this.updateMovement(opponent);
+    if(this.isP)updateHUD();
+    if(this.hp<=0){
+      this.combatState=COMBAT_STATE.DEFEATED;
+      this.state='hit';
+    }
+    if(this.comboTimer>0)this.comboTimer--;else this.comboChain=0;
+  }
+
   attack(type){
-    if(this.atkT>6)return;
-    this.atkType=type;this.state='atk';
-    this.combo++;if(this.combo>4)this.combo=1;
-    let spdMod=1;
-    if(this.isP&&weapon==='dagger')spdMod=0.72;
-    if(this.isP&&weapon==='claws')spdMod=0.68;
-    if(this.isP&&weapon==='scythe')spdMod=1.3;
-    if(this.isP&&weapon==='hammer')spdMod=1.2;
-    if(this.isP&&speedUpg>=2)spdMod*=0.82;
-    else if(this.isP&&speedUpg>=1)spdMod*=0.9;
-    if(!this.isP&&(this.type===4||this.type===7))spdMod=0.68;
-    if(!this.isP&&this.type===9)spdMod=0.72;
-    if(!this.isP&&this.type===10)spdMod=1.4; // Burden very slow
-    if(!this.isP&&this.type===11)spdMod=Math.random()<0.15?2.0:0.65; // Controlled — erratic burst or freeze
-    if(!this.isP&&this.type===12)spdMod=0.78; // Evolved — measured, clean
-    if(!this.isP&&this.type===13)spdMod=0.85; // Sync Wave — steady powerful
-    if(!this.isP&&this.type===14)spdMod=0.72; // Rewrite — fast clean attacks
-    if(!this.isP&&this.type===15)spdMod=Math.random()<0.2?2.2:0.7; // Memory Erasure — random burst
-    if(!this.isP&&this.type===16)spdMod=0.65; // Interference Wave — very fast
-    if(!this.isP&&this.type===17)spdMod=0.78; // Pressure Wave — steady relentless
-    if(!this.isP&&this.type===18)spdMod=0.70; // The Delay — precise counters
-    if(!this.isP&&this.type===19)spdMod=Math.random()<0.25?2.0:0.68; // Final Interference — chaos
-    if(!this.isP&&this.type===20)spdMod=0.62; // Final Host — precise, relentless
-    if(type==='slam'){
-      this.atkT=Math.floor(26*spdMod);this.hitF=12;this.cWin=36;
-      beep(this.isP?170:110,'sawtooth',0.24,0.09);return;
-    }
-    if(type==='throw'){
-      this.atkT=Math.floor(22*spdMod);this.hitF=10;this.cWin=34;
-      beep(this.isP?130:95,'triangle',0.22,0.08);return;
-    }
-    if(type==='p'){
-      this.atkT=Math.floor((this.raging?9:15)*spdMod);if(this.combo===4)this.atkT+=6;
-      this.hitF=Math.floor(this.atkT/2);this.cWin=25;
-      beep(this.isP?380+this.combo*110:190,'triangle',0.1,0.05);
-    } else {
-      this.atkT=Math.floor((this.raging?13:19)*spdMod);if(this.combo===4)this.atkT+=8;
-      this.hitF=Math.floor(this.atkT/2)+2;this.cWin=25;
-      beep(this.isP?280+this.combo*55:140,'sawtooth',0.15,0.06);
-    }
+    return beginMove(this,type);
   }
 
   takeHit(dmg,fd,heavy=false){
-    if(this.hp<=0)return;
-    let finalDmg=Math.max(1,dmg-(this.defense||0));
-    if(this.absorption)finalDmg*=(1-this.absorption);
-    if(this.raging&&this.rageTier===2)finalDmg*=0.72;
-    if(this.isP&&enduranceUpg>=2)finalDmg*=0.85;
-    this.hp=Math.max(0,this.hp-finalDmg);
-    this.hitT=heavy?18:11;this.state='hit';
-    // Boss types have heavy weight — reduced knockback
-    const isBossType=[3,6,8,10,13,14,15,18,19,20].includes(this.type);
-    const hKnock=isBossType?4:11;
-    this.vx=fd*(isBossType?3:hKnock);
-    // Bosses NEVER fly up — stay grounded
-    this.vy=isBossType?-2:(heavy?-6:-3);
-    if(heavy&&!isBossType){this.vx*=1.3;}
-    this.combo=0;this.cWin=0;
-    const airborne=(this.y<GND-4);
-    hitStop=airborne?0:(heavy?10:4);
-    if(settingsShake)screenShake=heavy?14:5;
-    if(heavy&&!airborne)doFlash();
-    beep(heavy?65:90,'sawtooth',heavy?0.25:0.18,0.1*settingsSfxVol);
-    if(heavy)beep(180,'sine',0.08,0.06*settingsSfxVol);
-    bloodSplatter(this.x+this.w/2,this.y,fd,heavy);
-    const dmgSize=finalDmg>=30?34:finalDmg>=20?28:finalDmg>=10?24:20;
-    floatingTexts.push({x:this.x+this.w/2+(Math.random()-.5)*20,y:this.y-this.h-10,
-      t:Math.floor(finalDmg),life:1,vy:-3,col:this.isP?varRed():'#fff',size:dmgSize});
-    updateHUD();if(this.hp<=0)checkRound();
+    const move = {
+      damage: dmg,
+      hitStunFrames: heavy ? 20 : 12,
+      blockStunFrames: heavy ? 10 : 7,
+      knockbackX: heavy ? 11 : 7,
+      knockbackY: heavy ? -5 : -2,
+      onHitEffect: heavy ? 'heavy' : 'light',
+      hitStop: heavy ? 7 : 4,
+      hitLevel: 'mid',
+      canHitGrounded: true,
+      canHitAirborne: true,
+      type: heavy ? 'heavy' : 'light',
+    };
+    applySuccessfulHit({ ...this, dir: fd * -1, isP: !this.isP, rageTier: 1, raging: false }, this, move);
   }
 
   draw(c,ghost=false){
