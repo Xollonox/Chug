@@ -89,20 +89,23 @@ function drawDebugOverlay(){
   if(!debugMode||!player||!enemy)return;
   ctx.save();
   ctx.fillStyle='rgba(0,0,0,0.65)';
-  ctx.fillRect(12,H-110,250,92);
+  ctx.fillRect(12,H-138,310,122);
   ctx.fillStyle='#00e5ff';
   ctx.font='12px monospace';
   const playerSnap=createCombatSnapshot(player);
   const animSnap=getAnimationSnapshot(player);
+  const aiSnap=getAIDebugSnapshot(enemy);
   const rows=[
     `state: ${gameState}`,
     `player hp ${Math.round(player.hp)}/${player.maxHp} stam ${Math.round(player.stamina)}`,
     `combat ${playerSnap.state} / ${playerSnap.moveId} / ${playerSnap.phase}`,
     `anim ${animSnap.key} f${animSnap.frameIndex} req:${animSnap.requestedBy}`,
+    aiSnap?`ai ${aiSnap.intent} ${aiSnap.weapon} ${aiSnap.archetype}`:'ai -',
+    `range ${Math.round(Math.abs((enemy.x+enemy.w/2)-(player.x+player.w/2)))} / pref ${aiSnap?aiSnap.preferredRange:'-'}`,
     `round ${curRound} timer ${timeLeft} combo ${comboCount}`
   ];
-  rows.forEach((row,index)=>ctx.fillText(row,24,H-88+(index*18)));
-  ctx.fillText(`event ${animSnap.lastEvent||'-'} interrupt:${animSnap.interruptible}`,24,H-16);
+  rows.forEach((row,index)=>ctx.fillText(row,24,H-106+(index*16)));
+  ctx.fillText(`event ${animSnap.lastEvent||'-'} ai:${aiSnap?aiSnap.note:'-'} `,24,H-16);
   ctx.restore();
 }
 

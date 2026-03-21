@@ -84,7 +84,10 @@ class Fighter{
     this.grabHits=0; // tracks how many times grabbed in current grab_exec
     // shadow effect vars
     this.trailX=[];this.trailY=[];
+    this.weaponId=isP?(weapon||'none'):getEnemyWeaponId(type);
+    this.loadout=!isP?getEnemyLoadout(type):null;
     this.aiProfile=getEnemyCombatProfile(type);
+    this.aiBrain=!isP?createAIBrain(this):null;
     this.animation=createAnimationController();
   }
   get raging(){return this.isP&&this.rageActive;}
@@ -102,7 +105,8 @@ class Fighter{
   }
 
   updateWeaponTrail(){
-    if(!this.isP || this.state!=='atk' || weapon==='none')return;
+    const weapon=getFighterWeaponId(this);
+    if(this.state!=='atk' || weapon==='none')return;
     const wx=this.x+this.w/2+(this.dir===1?this.w*0.5:-this.w*0.3);
     const wy=this.y-this.h*0.55;
     const swingCol={knuckle:'rgba(255,180,50,0.5)',dagger:'rgba(100,200,255,0.4)',katana:'rgba(255,255,200,0.6)',staff:'rgba(200,147,26,0.4)',scythe:'rgba(150,100,255,0.5)',claws:'rgba(180,180,255,0.45)',hammer:'rgba(255,120,0,0.4)'}[weapon]||'rgba(255,255,255,0.3)';
@@ -154,7 +158,7 @@ class Fighter{
       return;
     }
 
-    const desiredMove = this.isP ? readPlayerMoveIntent(this) : readEnemyMoveIntent(this,opponent);
+    const desiredMove = this.isP ? readPlayerMoveIntent(this) : null;
     if(desiredMove)queueMove(this, desiredMove);
 
     if(!isCombatLocked(this)){
@@ -170,22 +174,12 @@ class Fighter{
           else{this.vx=0;setCombatState(this,COMBAT_STATE.IDLE);}
         }
       } else {
-        const distance=(opponent.x+opponent.w/2)-(this.x+this.w/2);
-        const profile=this.aiProfile;
-        const gap=Math.abs(distance);
-        if(gap>profile.preferredRange+6){
-          this.vx=Math.sign(distance)*this.spd;
-          setCombatState(this,COMBAT_STATE.WALK);
-        } else if(gap<profile.preferredRange-24){
-          this.vx=-Math.sign(distance)*this.spd*0.55;
-          setCombatState(this,COMBAT_STATE.WALK);
-        } else {
-          this.vx=0;
-          if(this.combatState!==COMBAT_STATE.BLOCK_STUN)setCombatState(this,COMBAT_STATE.IDLE);
-        }
-        if(opponent.currentMove && opponent.attackPhase==='active' && gap<90 && Math.random()<0.03 && !this.isAirborne){
-          this.vy=-14;setCombatState(this,COMBAT_STATE.JUMP_RISE);
-        }
+        const decision=updateEnemyBrain(this,opponent);
+        this.blockIntent=decision.blockIntent;
+        this.vx=decision.desiredVx;
+        if(decision.moveId)queueMove(this, decision.moveId);
+        if(Math.abs(this.vx)>0.1)setCombatState(this,COMBAT_STATE.WALK);
+        else if(this.combatState!==COMBAT_STATE.BLOCK_STUN)setCombatState(this,COMBAT_STATE.IDLE);
       }
     }
 
@@ -264,6 +258,7 @@ class Fighter{
     const isJumpAnim=anim.tags.jump;
     const isHitAnim=anim.tags.hit;
     const isBlockAnim=anim.tags.block;
+    const weapon=getFighterWeaponId(this);
 
     // Draw trail
     if(this.trailX.length>1&&!ghost){
@@ -429,7 +424,7 @@ class Fighter{
     };
 
     // Scarf tails (player)
-    if(this.isP&&!ghost){
+    if((this.isP||weapon!=='none')&&!ghost){
       const scarfCol=this.raging?'#ffcc00':accentCol;
       c.strokeStyle=scarfCol;c.lineWidth=5;c.shadowBlur=this.raging?10:3;c.shadowColor=scarfCol;
       c.beginPath();c.moveTo(-3,headY+5);c.quadraticCurveTo(-15+wind,headY+bob,-30+wind+tailBob,headY+10+bob);c.stroke();

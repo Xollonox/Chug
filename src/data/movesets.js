@@ -218,21 +218,18 @@ function getEnemyCombatProfile(type){
 function getMoveDefinition(fighter, moveId){
   const move = MOVESET_REGISTRY.universal[moveId];
   if(!move)return null;
+  const weaponId = getFighterWeaponId(fighter);
+  const weaponProfile = getWeaponProfile(weaponId);
   const speedScale = fighter.isP
-    ? (weapon==='dagger' ? 0.85 : weapon==='claws' ? 0.8 : weapon==='scythe' ? 1.15 : weapon==='hammer' ? 1.2 : 1)
-    : (fighter.type===10 ? 1.15 : fighter.type===14 ? 0.82 : fighter.type===20 ? 0.78 : 1);
-  const rangeBonus = fighter.isP
-    ? (weapon==='staff' ? 22 : weapon==='katana' ? 18 : weapon==='scythe' ? 26 : weapon==='hammer' ? 12 : weapon==='dagger' ? 8 : 0)
-    : (BOSS_FIGHT_TYPES.includes(fighter.type) ? 12 : 0);
-  const damageBonus = fighter.isP
-    ? (weapon==='katana' ? 4 : weapon==='hammer' ? 6 : weapon==='scythe' ? 5 : weapon==='claws' ? 2 : 0)
-    : 0;
+    ? weaponProfile.speedModifier
+    : weaponProfile.speedModifier * (fighter.aiBrain?.difficulty?.spacingQuality > 0.8 ? 0.96 : 1);
+  const difficultyDamage = fighter.isP ? 0 : Math.floor((fighter.aiBrain?.difficulty?.confidence || 0.6) * 3);
   return {
     ...move,
     startupFrames: Math.max(4, Math.round(move.startupFrames * speedScale)),
-    activeFrames: Math.max(2, Math.round(move.activeFrames * (speedScale > 1 ? 1 : 1.05))),
-    recoveryFrames: Math.max(6, Math.round(move.recoveryFrames * speedScale)),
-    range: move.range + rangeBonus,
-    damage: move.damage + damageBonus + (fighter.isP ? 0 : Math.floor(Math.max(0, fighter.dmg - 10) * 0.35)),
+    activeFrames: Math.max(2, Math.round(move.activeFrames * (speedScale > 1 ? 1 : 1.04))),
+    recoveryFrames: Math.max(6, Math.round(move.recoveryFrames * Math.max(0.82, speedScale))),
+    range: move.range + weaponProfile.rangeBonus,
+    damage: move.damage + weaponProfile.damageBonus + difficultyDamage + (fighter.isP ? 0 : Math.floor(Math.max(0, fighter.dmg - 10) * 0.25)),
   };
 }

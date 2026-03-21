@@ -146,7 +146,7 @@ function applySuccessfulHit(attacker, defender, move){
   if(heavy)doFlash();
   bloodSplatter(defender.x+defender.w/2,defender.y,attacker.dir,heavy);
   shadowSlash(defender.x+defender.w/2,defender.y-defender.h*0.5,attacker.dir,attacker.isP?'rgba(255,80,80,0.5)':'rgba(200,200,200,0.3)',heavy);
-  if(attacker.isP)weaponImpactFX(defender.x+defender.w/2,defender.y,attacker.dir,weapon,heavy);
+  weaponImpactFX(defender.x+defender.w/2,defender.y,attacker.dir,getFighterWeaponId(attacker),heavy);
   if(move.onHitEffect === 'launcher'){
     defender.vy = Math.min(defender.vy, -7);
     defender.knockdownFrames = 14;

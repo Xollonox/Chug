@@ -33,7 +33,7 @@ const WEAPON_ANIMATION_OVERRIDES = {
 function getAnimationDefinition(fighter, key){
   const base = ANIMATION_REGISTRY[key];
   if(!base)return null;
-  const weaponKey = fighter.isP ? weapon : null;
+  const weaponKey = getFighterWeaponId(fighter);
   const override = weaponKey ? WEAPON_ANIMATION_OVERRIDES[weaponKey]?.[key] : null;
   return { ...base, playbackRate: override?.playbackRate || 1, rootMotionX: 0, rootMotionY: 0, cancelInto: [], key };
 }
