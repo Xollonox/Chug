@@ -290,8 +290,8 @@ function readPlayerMoveIntent(fighter){
   const awayHeld = fighter.dir === 1 ? isInputHeld('left') : isInputHeld('right');
   const forwardHeld = fighter.dir === 1 ? isInputHeld('right') : isInputHeld('left');
   fighter.blockIntent = !isAirborne && awayHeld ? (isInputHeld('grab') ? 'low' : 'high') : false;
-  if(!awayHeld && consumeBufferedInput('throw'))return 'throw';
-  if(!awayHeld && consumeBufferedInput('grab'))return 'launcher';
+  if(!awayHeld && consumeBufferedInput('grab'))return 'throw';
+  if(!awayHeld && consumeBufferedInput('throw'))return 'launcher';
   if(isAirborne){
     if(consumeBufferedInput('kick'))return 'airKick';
     if(consumeBufferedInput('punch'))return 'airJab';
