@@ -85,6 +85,7 @@ class Fighter{
     // shadow effect vars
     this.trailX=[];this.trailY=[];
     this.aiProfile=getEnemyCombatProfile(type);
+    this.animation=createAnimationController();
   }
   get raging(){return this.isP&&this.rageActive;}
 
@@ -228,6 +229,7 @@ class Fighter{
       this.state='hit';
     }
     if(this.comboTimer>0)this.comboTimer--;else this.comboChain=0;
+    advanceAnimation(this);
   }
 
   attack(type){
@@ -255,6 +257,13 @@ class Fighter{
     c.globalAlpha=1;c.shadowBlur=0;c.shadowColor='transparent';
     if(isNaN(this.x)||isNaN(this.y))return;
     const T=Date.now();
+    const anim=getAnimationSnapshot(this);
+    const attackAnim=getAttackAnimationWindow(this);
+    const isAttackAnim=anim.tags.attack;
+    const isWalkAnim=anim.tags.walk;
+    const isJumpAnim=anim.tags.jump;
+    const isHitAnim=anim.tags.hit;
+    const isBlockAnim=anim.tags.block;
 
     // Draw trail
     if(this.trailX.length>1&&!ghost){
@@ -267,7 +276,7 @@ class Fighter{
       c.globalAlpha=1;
     }
     // Attack motion blur — ghost image slightly behind
-    if(this.isP&&this.state==='atk'&&this.atkT<this.hitF+2&&!ghost){
+    if(this.isP&&isAttackAnim&&attackAnim.progress>0.15&&!ghost){
       c.globalAlpha=0.15;
       c.save();c.translate(this.x+this.w/2-this.dir*8,this.y);
       c.scale(this.dir*this.scale,this.scale);
@@ -276,8 +285,8 @@ class Fighter{
       c.restore();c.globalAlpha=1;
     }
 
-    let bob=(this.state==='run'||this.state==='idle')?Math.sin(T/100)*2:0;
-    if(this.state==='jump')bob=-4;
+    let bob=(isWalkAnim||anim.key==='idle')?Math.sin(T/100)*2:0;
+    if(isJumpAnim)bob=-4;
     if(this.landAnim>0)bob=Math.sin(this.landAnim/12*Math.PI)*-6;
 
     let bodyCol='#0a0a0a';
@@ -285,7 +294,7 @@ class Fighter{
     let wrapCol=this.isP?'#e8e0d0':'#cccccc';
     let accentCol=this.isP?'#cc0020':(this.type===9?'#9900dd':this.type===15?'#cc0088':'#333333');
 
-    if(this.hitT>0){bodyCol='#ffffff';clothCol='#ffffff';wrapCol='#ffffff';accentCol='#ffffff';}
+    if(isHitAnim){bodyCol='#ffffff';clothCol='#ffffff';wrapCol='#ffffff';accentCol='#ffffff';} else if(isBlockAnim){bodyCol='#d8d8e2';clothCol='#1a2630';wrapCol='#e0eef5';accentCol='#88d0ff';}
     else if(this.raging&&!ghost){bodyCol='#1a0000';clothCol='#380008';wrapCol='#ff8866';accentCol='#ff4400';}
     // Player-specific outfit color upgrades
     else if(this.isP&&!ghost){
@@ -300,8 +309,8 @@ class Fighter{
     if(this.rotation)c.rotate(this.rotation);
 
     let sqX=1,sqY=1;
-    if(this.state==='jump'){sqX=0.86;sqY=1.16;}
-    if(this.state==='hit'){sqX=1.22;sqY=0.78;}
+    if(isJumpAnim){sqX=0.86;sqY=1.16;}
+    if(isHitAnim){sqX=1.22;sqY=0.78;} if(isBlockAnim){sqX=1.08;sqY=0.92;}
     if(this.landAnim>0){const p=this.landAnim/12;sqX=1+p*0.28;sqY=1-p*0.22;}
 
     c.scale(this.dir*sqX*this.scale,sqY*this.scale);
@@ -325,13 +334,13 @@ class Fighter{
     let shoulderY=-this.baseH+32+bob;
     let waistY=-this.baseH*0.55+bob;
 
-    let leanX=(this.state==='atk'&&this.atkType==='k')?-8:
-      (this.state==='atk'&&this.atkType==='slam')?-14:
-      (this.state==='atk'&&this.atkType==='throw')?10:2;
+    let leanX=(isAttackAnim&&this.atkType==='k')?-8:
+      (isAttackAnim&&this.atkType==='slam')?-14:
+      (isAttackAnim&&this.atkType==='throw')?10:2;
     let leftShoulderX=-tW/2+leanX;
     let rightShoulderX=tW/2+leanX+breathe;
     let wind=-this.vx*3;
-    let tailBob=(this.state==='run'||this.state==='jump')?Math.sin(T/50)*14:Math.sin(T/160)*4;
+    let tailBob=(isWalkAnim||isJumpAnim)?Math.sin(T/50)*14:Math.sin(T/160)*4;
 
     // Boss aura — subtle color tint only, no circles
     if(isBoss&&!ghost){
@@ -350,10 +359,10 @@ class Fighter{
       let progress=Math.min(1,t/40);
       bFootX=-10+Math.sin(progress*Math.PI)*5;bFootY=0;bKneeX=-18;bKneeY=-26;
       fFootX=20+Math.sin(progress*Math.PI)*15;fFootY=0;fKneeX=14;fKneeY=-20;
-    } else if(this.state==='atk'&&this.atkType==='slam'){
+    } else if(isAttackAnim&&this.atkType==='slam'){
       bFootX=-10;bFootY=0;bKneeX=-18;bKneeY=-26;
       fFootX=32;fFootY=0;fKneeX=18;fKneeY=-18;
-    } else if(this.state==='atk'&&this.atkType==='k'){
+    } else if(isAttackAnim&&this.atkType==='k'){
       const ke=this.atkT<this.hitF+4?(this.combo===3?85:60):30;
       bFootX=-12;bFootY=0;bKneeX=-15;bKneeY=-25;
       let kEndX=ke,kEndY=waistY+25;
@@ -362,12 +371,12 @@ class Fighter{
       if(this.combo===3)kEndY=-this.baseH+20;
       fFootX=kEndX;fFootY=kEndY;fKneeX=kEndX/2;fKneeY=kEndY+15;
     } else {
-      let runBob=this.state==='run'?Math.sin(T/80)*24:0;
+      let runBob=isWalkAnim?Math.sin(T/80)*24:0;
       bFootX=-12-runBob;bFootY=0;bKneeX=-15-runBob*0.5;bKneeY=-25;
       fFootX=18+runBob;fFootY=0;fKneeX=12+runBob*0.5;fKneeY=-25;
     }
 
-    let tk=(this.state==='atk'&&this.atkType==='k')?-8:0;
+    let tk=(isAttackAnim&&this.atkType==='k')?-8:0;
 
     // Hands
     if(this.state==='grab_exec'){
@@ -381,12 +390,12 @@ class Fighter{
       else leanX=15;
       bElbowX=leftShoulderX-10;bElbowY=shoulderY-30;
       fElbowX=rightShoulderX+10;fElbowY=shoulderY-30;
-    } else if(this.state==='atk'&&this.atkType==='slam'){
+    } else if(isAttackAnim&&this.atkType==='slam'){
       bHandX=-6;bHandY=waistY-25;
       fHandX=44;fHandY=waistY+32;
       bElbowX=leftShoulderX-6;bElbowY=shoulderY-6;
       fElbowX=rightShoulderX+12;fElbowY=shoulderY+30;
-    } else if(this.state==='atk'&&this.atkType==='throw'){
+    } else if(isAttackAnim&&this.atkType==='throw'){
       bHandX=-8;bHandY=waistY-6;fHandX=40;fHandY=waistY-18;
       bElbowX=leftShoulderX-2;bElbowY=shoulderY+10;
       fElbowX=rightShoulderX+16;fElbowY=shoulderY-12;
@@ -559,11 +568,11 @@ class Fighter{
     if(this.isP&&!ghost){
       const ang=Math.atan2(fHandY-fElbowY,fHandX-fElbowX);
       const T2=Date.now();
-      const isAttacking=this.state==='atk';
-      const atkProg=isAttacking?Math.max(0,Math.min(1,(this.hitF-this.atkT)/(this.hitF||1))):0;
-      const preHit=isAttacking&&this.atkT>this.hitF; // winding up
-      const onHit=isAttacking&&this.atkT<=this.hitF&&this.atkT>this.hitF-5; // impact frame
-      const postHit=isAttacking&&this.atkT<=this.hitF-5; // follow-through
+      const isAttacking=isAttackAnim;
+      const atkProg=isAttacking?attackAnim.progress:0;
+      const preHit=isAttacking&&attackAnim.startup; // winding up
+      const onHit=isAttacking&&attackAnim.active; // impact frame
+      const postHit=isAttacking&&attackAnim.recovery; // follow-through
 
       c.save();c.translate(fHandX,fHandY);c.rotate(ang);
 

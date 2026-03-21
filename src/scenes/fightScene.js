@@ -92,15 +92,17 @@ function drawDebugOverlay(){
   ctx.fillRect(12,H-110,250,92);
   ctx.fillStyle='#00e5ff';
   ctx.font='12px monospace';
+  const playerSnap=createCombatSnapshot(player);
+  const animSnap=getAnimationSnapshot(player);
   const rows=[
     `state: ${gameState}`,
     `player hp ${Math.round(player.hp)}/${player.maxHp} stam ${Math.round(player.stamina)}`,
-    `enemy hp ${Math.round(enemy.hp)}/${enemy.maxHp} ai ${enemy.ai||0}`,
+    `combat ${playerSnap.state} / ${playerSnap.moveId} / ${playerSnap.phase}`,
+    `anim ${animSnap.key} f${animSnap.frameIndex} req:${animSnap.requestedBy}`,
     `round ${curRound} timer ${timeLeft} combo ${comboCount}`
   ];
   rows.forEach((row,index)=>ctx.fillText(row,24,H-88+(index*18)));
-  const playerSnap=createCombatSnapshot(player);
-  ctx.fillText(`move ${playerSnap.moveId} / ${playerSnap.phase}`,24,H-16);
+  ctx.fillText(`event ${animSnap.lastEvent||'-'} interrupt:${animSnap.interruptible}`,24,H-16);
   ctx.restore();
 }
 

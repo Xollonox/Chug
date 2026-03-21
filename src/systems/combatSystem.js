@@ -36,6 +36,7 @@ function resetCombatState(fighter){
   fighter.aiDecisionCooldown = 0;
   fighter.blockIntent = false;
   fighter.lastAttackOutcome = 'none';
+  fighter.reactionType = 'idle';
 }
 
 function setCombatState(fighter, nextState){
@@ -114,6 +115,7 @@ function applyBlockedHit(attacker, defender, move){
   defender.vy = 0;
   setCombatState(defender, COMBAT_STATE.BLOCK_STUN);
   defender.lastAttackOutcome = 'blocked';
+  defender.reactionType = 'block';
   attacker.lastAttackOutcome = 'blocked';
   applyHitStop(Math.max(2, Math.floor(move.hitStop * 0.5)));
   beep(120,'square',0.08,0.03 * settingsSfxVol);
@@ -130,6 +132,7 @@ function applySuccessfulHit(attacker, defender, move){
   defender.vy = move.knockbackY;
   setCombatState(defender, heavy ? COMBAT_STATE.HIT_STUN : COMBAT_STATE.HIT_STUN);
   defender.lastAttackOutcome = 'hit';
+  defender.reactionType = heavy ? 'heavy' : 'light';
   attacker.lastAttackOutcome = 'hit';
   attacker.comboChain = attacker.comboTimer > 0 ? attacker.comboChain + 1 : 1;
   attacker.comboTimer = move.hitStunFrames + move.recoveryFrames + 10;
