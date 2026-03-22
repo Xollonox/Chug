@@ -319,9 +319,30 @@ class Fighter{
     let shoulderY=-this.baseH+32+bob;
     let waistY=-this.baseH*0.55+bob;
 
+    const attackCurve=attackAnim.progress||0;
+    const startupCurve=attackAnim.startup?attackCurve:0;
+    const activeCurve=attackAnim.active?attackCurve:0;
+    const recoveryCurve=attackAnim.recovery?attackCurve:0;
+    const throwReach=isAttackAnim&&this.atkType==='throw'
+      ? (startupCurve*18 + activeCurve*30 + recoveryCurve*10)
+      : 0;
+    const throwLift=isAttackAnim&&this.atkType==='throw'
+      ? (startupCurve*6 + activeCurve*18 - recoveryCurve*8)
+      : 0;
+    const slamReach=isAttackAnim&&this.atkType==='slam'
+      ? (startupCurve*8 + activeCurve*26 - recoveryCurve*10)
+      : 0;
+    const slamDrop=isAttackAnim&&this.atkType==='slam'
+      ? (-startupCurve*10 + activeCurve*24 - recoveryCurve*6)
+      : 0;
+
+    headY-=throwLift*0.4;
+    shoulderY-=throwLift*0.26;
+    waistY-=throwLift*0.15;
+
     let leanX=(isAttackAnim&&this.atkType==='k')?-8:
-      (isAttackAnim&&this.atkType==='slam')?-14:
-      (isAttackAnim&&this.atkType==='throw')?10:2;
+      (isAttackAnim&&this.atkType==='slam')?(-10-slamReach*0.42+slamDrop*0.08):
+      (isAttackAnim&&this.atkType==='throw')?(8+throwReach*0.34):2;
     let leftShoulderX=-tW/2+leanX;
     let rightShoulderX=tW/2+leanX+breathe;
     let wind=-this.vx*3;
@@ -345,8 +366,27 @@ class Fighter{
       bFootX=-10+Math.sin(progress*Math.PI)*5;bFootY=0;bKneeX=-18;bKneeY=-26;
       fFootX=20+Math.sin(progress*Math.PI)*15;fFootY=0;fKneeX=14;fKneeY=-20;
     } else if(isAttackAnim&&this.atkType==='slam'){
-      bFootX=-10;bFootY=0;bKneeX=-18;bKneeY=-26;
-      fFootX=32;fFootY=0;fKneeX=18;fKneeY=-18;
+      const lunge=slamReach;
+      const crouch=slamDrop;
+      bFootX=-18-lunge*0.08;
+      bFootY=0;
+      bKneeX=-22-lunge*0.12;
+      bKneeY=-22+crouch*0.18;
+      fFootX=28+lunge*0.42;
+      fFootY=0;
+      fKneeX=16+lunge*0.18;
+      fKneeY=-24+crouch*0.36;
+    } else if(isAttackAnim&&this.atkType==='throw'){
+      const brace=throwReach;
+      const lift=throwLift;
+      bFootX=-20+brace*0.16;
+      bFootY=0;
+      bKneeX=-24+brace*0.1;
+      bKneeY=-22-lift*0.28;
+      fFootX=16+brace*0.55;
+      fFootY=0;
+      fKneeX=12+brace*0.22;
+      fKneeY=-28-lift*0.5;
     } else if(isAttackAnim&&this.atkType==='k'){
       const ke=this.atkT<this.hitF+4?(this.combo===3?85:60):30;
       bFootX=-12;bFootY=0;bKneeX=-15;bKneeY=-25;
@@ -376,14 +416,27 @@ class Fighter{
       bElbowX=leftShoulderX-10;bElbowY=shoulderY-30;
       fElbowX=rightShoulderX+10;fElbowY=shoulderY-30;
     } else if(isAttackAnim&&this.atkType==='slam'){
-      bHandX=-6;bHandY=waistY-25;
-      fHandX=44;fHandY=waistY+32;
-      bElbowX=leftShoulderX-6;bElbowY=shoulderY-6;
-      fElbowX=rightShoulderX+12;fElbowY=shoulderY+30;
+      const lunge=slamReach;
+      const crush=slamDrop;
+      bHandX=-12-lunge*0.12;
+      bHandY=waistY-42-lunge*0.1+crush*0.18;
+      fHandX=28+lunge*0.72;
+      fHandY=waistY-12+crush*1.05;
+      bElbowX=leftShoulderX-10-lunge*0.08;
+      bElbowY=shoulderY-22+crush*0.12;
+      fElbowX=rightShoulderX+18+lunge*0.22;
+      fElbowY=shoulderY-34+crush*0.6;
     } else if(isAttackAnim&&this.atkType==='throw'){
-      bHandX=-8;bHandY=waistY-6;fHandX=40;fHandY=waistY-18;
-      bElbowX=leftShoulderX-2;bElbowY=shoulderY+10;
-      fElbowX=rightShoulderX+16;fElbowY=shoulderY-12;
+      const reach=throwReach;
+      const lift=throwLift;
+      bHandX=-12-reach*0.1;
+      bHandY=waistY-16-lift*0.6;
+      fHandX=28+reach*0.82;
+      fHandY=waistY-16-lift*1.2;
+      bElbowX=leftShoulderX-10-reach*0.04;
+      bElbowY=shoulderY-4-lift*0.2;
+      fElbowX=rightShoulderX+18+reach*0.14;
+      fElbowY=shoulderY-30-lift*0.8;
     } else if(this.state==='atk'&&this.atkType==='p'){
       let ext=(this.atkT<this.hitF+6?56:26)+(this.combo===3?26:0);if(isBoss)ext=Math.floor(ext*1.4);
       bHandX=-20+tk;bHandY=waistY;
@@ -1048,4 +1101,3 @@ class Fighter{
     c.restore();c.globalAlpha=1;c.shadowBlur=0;c.shadowColor='transparent';
   }
 }
-
