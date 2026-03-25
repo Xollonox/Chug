@@ -7261,87 +7261,100 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
         c.lineWidth=w2;
         c.beginPath();c.moveTo(jx,jy);c.lineTo(ex,ey);c.stroke();
       };
-      const drawFoot=(x,y,dir,size=7)=>{
-        c.save();
-        c.translate(x,y-1);
-        c.rotate(dir*0.08);
-        c.fillStyle='#040404';
+      const drawFist=(x,y,size=5.2)=>{
+        c.fillStyle='#030303';
         c.beginPath();
-        c.moveTo(-size*0.9,-size*0.45);
-        c.lineTo(size*1.3,-size*0.28);
-        c.lineTo(size*1.6,size*0.18);
-        c.lineTo(-size*0.45,size*0.55);
+        c.moveTo(x-size*0.9,y-size*0.6);
+        c.lineTo(x+size*0.9,y-size*0.5);
+        c.lineTo(x+size*1.05,y+size*0.25);
+        c.lineTo(x-size*0.65,y+size*0.6);
+        c.closePath();
+        c.fill();
+      };
+      const drawFoot=(x,y,angle,size=7)=>{
+        c.save();
+        c.translate(x,y);
+        c.rotate(angle);
+        c.fillStyle='#030303';
+        c.beginPath();
+        c.moveTo(-size*1.05,-size*0.45);
+        c.lineTo(size*1.35,-size*0.25);
+        c.lineTo(size*1.65,size*0.15);
+        c.lineTo(size*0.55,size*0.58);
+        c.lineTo(-size*0.75,size*0.5);
         c.closePath();
         c.fill();
         c.restore();
       };
 
-      const hipCX=(leanX*0.45)-2;
-      const hipCY=waistY+1;
-      const neckX=leanX+4;
-      const neckY=shoulderY-2;
-      const lsX=leftShoulderX-1;
-      const rsX=rightShoulderX+2;
-      const lsY=shoulderY+2;
-      const rsY=shoulderY-2;
-      const lHipX=hipCX-13;
-      const rHipX=hipCX+10;
-      const lHipY=hipCY+1;
-      const rHipY=hipCY-1;
+      // Side-on stance anchors (30–45 degree guard profile)
+      const stanceLean=(this.state==='idle'||this.state==='walk'||this.state==='run')?11:6;
+      const neckX=stanceLean+5;
+      const neckY=shoulderY-8;
+      const shoulderBackX=stanceLean-18, shoulderBackY=shoulderY+4;
+      const shoulderFrontX=stanceLean+18, shoulderFrontY=shoulderY-6;
+      const hipBackX=stanceLean-11, hipBackY=waistY+2;
+      const hipFrontX=stanceLean+7, hipFrontY=waistY-2;
 
-      // Legs first (back then front) for depth
-      drawLimb(lHipX,lHipY,bKneeX,bKneeY,bFootX,bFootY,13,10);
-      drawFoot(bFootX,bFootY,this.dir,6);
-      drawLimb(rHipX,rHipY,fKneeX,fKneeY,fFootX,fFootY,14,11);
-      drawFoot(fFootX,fFootY,this.dir,7);
+      // Enforce side-on guard in non-attack states
+      if(this.state==='idle'||this.state==='walk'||this.state==='run'){
+        bElbowX=shoulderBackX+6; bElbowY=shoulderBackY+11;
+        bHandX=shoulderBackX+2;  bHandY=waistY-8;   // rear hand loaded
+        fElbowX=shoulderFrontX+2;fElbowY=shoulderFrontY+6;
+        fHandX=shoulderFrontX+6; fHandY=headY+2;    // lead hand high guard
 
-      // Torso silhouette (broad shoulders -> tapered waist)
-      c.fillStyle='#060606';
-      c.beginPath();
-      c.moveTo(lsX,lsY);
-      c.lineTo(rsX,rsY);
-      c.lineTo(rHipX+1,rHipY);
-      c.lineTo(hipCX+2,hipCY+13);
-      c.lineTo(lHipX-2,lHipY+1);
-      c.closePath();
-      c.fill();
+        bKneeX=hipBackX-16; bKneeY=waistY-24;
+        bFootX=hipBackX-31; bFootY=2;               // back leg extended
+        fKneeX=hipFrontX+11;fKneeY=waistY-15;
+        fFootX=hipFrontX+17;fFootY=0;               // front leg bent/planted
+      }
 
-      // Upper torso wedge for chest structure
-      c.fillStyle='#040404';
-      c.beginPath();
-      c.moveTo(neckX-6,neckY+1);
-      c.lineTo(neckX+7,neckY-1);
-      c.lineTo(hipCX+2,hipCY-8);
-      c.lineTo(hipCX-5,hipCY-7);
-      c.closePath();
-      c.fill();
+      // Back leg then front leg (clear silhouette separation)
+      drawLimb(hipBackX,hipBackY,bKneeX,bKneeY,bFootX,bFootY,11,9);
+      drawFoot(bFootX,bFootY,-0.05*this.dir,6.3);
+      drawLimb(hipFrontX,hipFrontY,fKneeX,fKneeY,fFootX,fFootY,13,10);
+      drawFoot(fFootX,fFootY,0.12*this.dir,7.2);
 
-      // Arms: guard arm + loaded strike arm
-      drawLimb(lsX+1,lsY+1,bElbowX,bElbowY,bHandX,bHandY,11,9);
-      drawLimb(rsX-1,rsY+1,fElbowX,fElbowY,fHandX,fHandY,12,10);
-
-      // Fists
-      c.fillStyle='#030303';
-      c.beginPath();c.arc(bHandX,bHandY,5.4,0,Math.PI*2);c.fill();
-      c.beginPath();c.arc(fHandX,fHandY,5.8,0,Math.PI*2);c.fill();
-
-      // Neck + compact head (not rounded mascot)
-      c.strokeStyle='#040404';
-      c.lineWidth=5;
-      c.beginPath();c.moveTo(neckX,neckY);c.lineTo(neckX+1,headY+5);c.stroke();
+      // Torso: broad shoulder line -> tapered waist (athletic wedge)
       c.fillStyle='#050505';
       c.beginPath();
-      c.ellipse(neckX+2,headY,8.2,9.6,0.2,0,Math.PI*2);
+      c.moveTo(shoulderBackX,shoulderBackY);
+      c.lineTo(shoulderFrontX,shoulderFrontY);
+      c.lineTo(hipFrontX+2,hipFrontY+2);
+      c.lineTo(stanceLean+1,waistY+11);
+      c.lineTo(hipBackX-2,hipBackY+3);
+      c.closePath();
       c.fill();
 
-      // Subtle eye slit only
-      const eyeCol=this.raging?(this.rageTier===2?'rgba(255,88,88,0.85)':'rgba(115,232,255,0.85)'):'rgba(230,230,230,0.24)';
-      c.strokeStyle=eyeCol;
-      c.lineWidth=1.3;
-      c.shadowBlur=this.raging?7:2;
-      c.shadowColor=eyeCol;
-      c.beginPath();c.moveTo(neckX+5,headY-1.5);c.lineTo(neckX+9,headY-2.1);c.stroke();
-      c.shadowBlur=0;
+      // Chest plane tilt to reduce flat/front-facing feel
+      c.fillStyle='#040404';
+      c.beginPath();
+      c.moveTo(stanceLean-5,shoulderY-2);
+      c.lineTo(stanceLean+10,shoulderY-6);
+      c.lineTo(stanceLean+4,waistY-7);
+      c.lineTo(stanceLean-6,waistY-4);
+      c.closePath();
+      c.fill();
+
+      // Arms: rear loaded, lead guarding high
+      drawLimb(shoulderBackX,shoulderBackY,bElbowX,bElbowY,bHandX,bHandY,10,8);
+      drawLimb(shoulderFrontX,shoulderFrontY,fElbowX,fElbowY,fHandX,fHandY,11,9);
+      drawFist(bHandX,bHandY,4.9);
+      drawFist(fHandX,fHandY,5.2);
+
+      // Neck + compact helmet-like head (smaller, less round)
+      c.strokeStyle='#040404';
+      c.lineWidth=4;
+      c.beginPath();c.moveTo(neckX-1,neckY);c.lineTo(neckX+1,headY+4);c.stroke();
+      c.fillStyle='#040404';
+      c.beginPath();
+      c.ellipse(neckX+1,headY-0.8,6.6,8.2,0.3,0,Math.PI*2);
+      c.fill();
+
+      // Optional tiny dim eye slit (no visor band)
+      c.strokeStyle='rgba(210,210,210,0.18)';
+      c.lineWidth=1;
+      c.beginPath();c.moveTo(neckX+4.8,headY-1.9);c.lineTo(neckX+6.8,headY-2.1);c.stroke();
 
       c.restore();
       return;
