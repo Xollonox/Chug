@@ -7061,17 +7061,18 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
     if(this.landAnim>0)bob=Math.sin(this.landAnim/12*Math.PI)*-6;
 
     let bodyCol='#0a0a0a';
-    let clothCol=this.isP?'#141014':'#1a1a1a';
-    let wrapCol=this.isP?'#e8e0d0':'#cccccc';
-    let accentCol=this.isP?'#cc0020':(this.type===9?'#9900dd':this.type===15?'#cc0088':'#333333');
+    let clothCol=this.isP?'#0b0b0b':'#1a1a1a';
+    let wrapCol=this.isP?'#0b0b0b':'#cccccc';
+    let accentCol=this.isP?'#161616':(this.type===9?'#9900dd':this.type===15?'#cc0088':'#333333');
 
     if(this.hitT>0){bodyCol='#ffffff';clothCol='#ffffff';wrapCol='#ffffff';accentCol='#ffffff';}
     else if(this.raging&&!ghost){if(this.rageTier===2){bodyCol='#140404';clothCol='#320808';wrapCol='#ffd0d0';accentCol='#ff4a4a';}else{bodyCol='#060913';clothCol='#0d1730';wrapCol='#bff8ff';accentCol='#62e8ff';}}
     // Player-specific outfit color upgrades
     else if(this.isP&&!ghost){
-      if(armor==='heavyarmor'){clothCol='#282020';bodyCol='#0a0808';}
-      if(armor==='lightarmor'){clothCol='#101820';bodyCol='#080808';}
-      if(armor==='voidarmor'){clothCol='#100c18';bodyCol='#080808';}
+      bodyCol='#070707';clothCol='#0b0b0b';wrapCol='#0b0b0b';accentCol='#171717';
+      if(armor==='heavyarmor'){clothCol='#111111';bodyCol='#060606';}
+      if(armor==='lightarmor'){clothCol='#0e0e0e';bodyCol='#060606';}
+      if(armor==='voidarmor'){clothCol='#0e0e12';bodyCol='#050505';}
     }
 
     const breathe=Math.sin(T/200)*1.5;
@@ -7100,10 +7101,13 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
     let lW=isBoss?15:12;
     let jR=isBoss?8:6;
     let hR=isBoss?14:11;
+    if(this.isP&&!isBoss){
+      tW=38;wW=16;aW=10;lW=12;jR=5;hR=8;
+    }
 
     let headY=-this.baseH+15+bob+breathe*0.3;
-    let shoulderY=-this.baseH+32+bob;
-    let waistY=-this.baseH*0.55+bob;
+    let shoulderY=-this.baseH+(this.isP?34:32)+bob;
+    let waistY=-this.baseH*(this.isP?0.52:0.55)+bob;
 
     let leanX=(this.state==='atk'&&this.atkType==='k')?-8:
       (this.state==='atk'&&this.atkType==='slam')?-14:
@@ -7173,9 +7177,14 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
       bFootX=-10;bFootY=-6;bKneeX=-14;bKneeY=-22;
       fFootX=12;fFootY=-10;fKneeX=8;fKneeY=-20;
     } else {
-      let runBob=this.state==='run'?Math.sin(T/80)*24:0;
-      bFootX=-12-runBob;bFootY=0;bKneeX=-15-runBob*0.5;bKneeY=-25;
-      fFootX=18+runBob;fFootY=0;fKneeX=12+runBob*0.5;fKneeY=-25;
+      let runBob=this.state==='run'?Math.sin(T/80)*(this.isP?18:24):0;
+      if(this.isP){
+        bFootX=-22-runBob*0.8;bFootY=0;bKneeX=-16-runBob*0.35;bKneeY=-29;
+        fFootX=26+runBob;fFootY=0;fKneeX=14+runBob*0.4;fKneeY=-22;
+      }else{
+        bFootX=-12-runBob;bFootY=0;bKneeX=-15-runBob*0.5;bKneeY=-25;
+        fFootX=18+runBob;fFootY=0;fKneeX=12+runBob*0.5;fKneeY=-25;
+      }
     }
 
     let tk=(this.state==='atk'&&this.atkType==='k')?-8:0;
@@ -7210,12 +7219,20 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
       bElbowX=leftShoulderX-15;bElbowY=shoulderY+10;
       fElbowX=rightShoulderX+(fHandX-rightShoulderX)/2;fElbowY=shoulderY+(fHandY-shoulderY)/2-10;
     } else {
-      fHandX=20+tk;fHandY=waistY-10;bHandX=-12+tk;bHandY=waistY+5;
-      fElbowX=rightShoulderX+8;fElbowY=shoulderY+15;
-      bElbowX=leftShoulderX-8;bElbowY=shoulderY+15;
+      if(this.isP){
+        // Guard-ready silhouette stance: one hand high guard, one hand loaded
+        fHandX=17+tk;fHandY=waistY-36;bHandX=-17+tk;bHandY=waistY-10;
+        fElbowX=rightShoulderX-4;fElbowY=shoulderY+2;
+        bElbowX=leftShoulderX+1;bElbowY=shoulderY+8;
+      }else{
+        fHandX=20+tk;fHandY=waistY-10;bHandX=-12+tk;bHandY=waistY+5;
+        fElbowX=rightShoulderX+8;fElbowY=shoulderY+15;
+        bElbowX=leftShoulderX-8;bElbowY=shoulderY+15;
+      }
     }
 
     let drawWrap=(ex,ey,hx,hy)=>{
+      if(this.isP)return;
       c.lineWidth=aW+1;c.strokeStyle=wrapCol;
       let dx=hx-ex,dy=hy-ey,len=Math.sqrt(dx*dx+dy*dy);
       if(len<5)return;
@@ -7223,6 +7240,7 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
       c.beginPath();c.moveTo(hx-uX*3,hy-uY*3);c.lineTo(hx-uX*12,hy-uY*12);c.stroke();
     };
     let drawAnkleWrap=(kx,ky,fx,fy)=>{
+      if(this.isP)return;
       c.lineWidth=lW+1;c.strokeStyle=wrapCol;
       let dx=fx-kx,dy=fy-ky,len=Math.sqrt(dx*dx+dy*dy);
       if(len<5)return;
@@ -7230,14 +7248,6 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
       c.beginPath();c.moveTo(fx-uX*2,fy-uY*2);c.lineTo(fx-uX*12,fy-uY*12);c.stroke();
     };
 
-    // Scarf tails (player)
-    if(this.isP&&!ghost){
-      const scarfCol=this.raging?'#ffcc00':accentCol;
-      c.strokeStyle=scarfCol;c.lineWidth=5;c.shadowBlur=this.raging?10:3;c.shadowColor=scarfCol;
-      c.beginPath();c.moveTo(-3,headY+5);c.quadraticCurveTo(-15+wind,headY+bob,-30+wind+tailBob,headY+10+bob);c.stroke();
-      c.beginPath();c.moveTo(-3,headY+5);c.quadraticCurveTo(-10+wind,headY+5+bob,-20+wind-tailBob,headY+15+bob);c.stroke();
-      c.shadowBlur=0;
-    }
     if(this.type===9&&!ghost){
       c.strokeStyle='#9900dd';c.lineWidth=5;c.shadowBlur=8;c.shadowColor='#9900dd';
       c.beginPath();c.moveTo(-3,headY+5);c.quadraticCurveTo(-15+wind,headY+bob,-30+wind+tailBob,headY+10+bob);c.stroke();
@@ -7270,8 +7280,10 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
     c.beginPath();c.moveTo(-wW/2,waistY);c.lineTo(wW/2,waistY);c.stroke();
     c.beginPath();c.moveTo(leftShoulderX,shoulderY);c.lineTo(-wW/2,waistY);c.stroke();
     c.beginPath();c.moveTo(rightShoulderX,shoulderY);c.lineTo(wW/2,waistY);c.stroke();
-    c.fillStyle=bodyCol;
-    c.beginPath();c.moveTo(-6,shoulderY-2);c.lineTo(6,shoulderY-2);c.lineTo(0,waistY-12);c.fill();
+    if(!this.isP){
+      c.fillStyle=bodyCol;
+      c.beginPath();c.moveTo(-6,shoulderY-2);c.lineTo(6,shoulderY-2);c.lineTo(0,waistY-12);c.fill();
+    }
 
     // Armor plating
     if(this.isP&&armor==='heavyarmor'){
@@ -7294,41 +7306,27 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
     }
 
     // Belt
-    let beltCol=this.raging?'#ff9900':(this.isP?accentCol:'#444444');
-    if(isBoss&&!this.raging)beltCol='#440000';
-    if(this.type===9)beltCol='#9900dd';
-    if(this.type===10)beltCol='#334455';
-    c.fillStyle=beltCol;c.fillRect(-wW/2-4,waistY-4,wW+8,8);
-    c.lineWidth=4;c.strokeStyle=beltCol;c.lineCap='round';
-    c.beginPath();c.moveTo(-wW/2,waistY);c.quadraticCurveTo(-wW/2-10+wind,waistY+15,-wW/2-5+wind+tailBob,waistY+30);c.stroke();
-    c.beginPath();c.moveTo(-wW/2+5,waistY);c.quadraticCurveTo(-wW/2-5+wind,waistY+12,-wW/2+wind-tailBob,waistY+25);c.stroke();
+    if(!this.isP){
+      let beltCol=this.raging?'#ff9900':(this.isP?accentCol:'#444444');
+      if(isBoss&&!this.raging)beltCol='#440000';
+      if(this.type===9)beltCol='#9900dd';
+      if(this.type===10)beltCol='#334455';
+      c.fillStyle=beltCol;c.fillRect(-wW/2-4,waistY-4,wW+8,8);
+      c.lineWidth=4;c.strokeStyle=beltCol;c.lineCap='round';
+      c.beginPath();c.moveTo(-wW/2,waistY);c.quadraticCurveTo(-wW/2-10+wind,waistY+15,-wW/2-5+wind+tailBob,waistY+30);c.stroke();
+      c.beginPath();c.moveTo(-wW/2+5,waistY);c.quadraticCurveTo(-wW/2-5+wind,waistY+12,-wW/2+wind-tailBob,waistY+25);c.stroke();
+    }
 
     // Head
     c.fillStyle=bodyCol;c.beginPath();c.arc(2,headY,hR,0,6.28);c.fill();
     if(this.isP&&!ghost){
-      // Player headband
-      c.strokeStyle=this.raging?'#ffcc00':accentCol;c.lineWidth=4;
-      c.shadowBlur=this.raging?10:4;c.shadowColor=c.strokeStyle;
-      c.beginPath();c.moveTo(-hR+3,headY);c.lineTo(hR+2,headY-1);c.stroke();c.shadowBlur=0;
-      // Player face - eyes (red eyes when raging)
-      const eyeCol=this.raging?'#ff4400':'#cc2020';
-      c.fillStyle=eyeCol;c.shadowBlur=this.raging?8:3;c.shadowColor=eyeCol;
-      c.beginPath();c.arc(5,headY-2,this.raging?3.5:2.5,0,Math.PI*2);c.fill();
-      c.shadowBlur=0;
-      // Eye glint
-      c.fillStyle='rgba(255,255,255,0.6)';c.beginPath();c.arc(6,headY-3,1,0,Math.PI*2);c.fill();
-      // Nose hint
-      c.strokeStyle='rgba(80,0,0,0.4)';c.lineWidth=1.2;c.beginPath();c.moveTo(3,headY+1);c.lineTo(2,headY+4);c.stroke();
-      // Jaw line
-      c.strokeStyle='rgba(0,0,0,0.3)';c.lineWidth=1;c.beginPath();c.arc(2,headY,hR-2,Math.PI*0.1,Math.PI*0.9);c.stroke();
-      // Hair spikes on top (player's signature look)
-      c.fillStyle=this.raging?'#ff8800':'#0a0a0a';
-      c.shadowBlur=this.raging?6:0;c.shadowColor='#ff4400';
-      for(let hs=0;hs<3;hs++){
-        c.beginPath();
-        const hsx=-hR+2+hs*5;
-        c.moveTo(hsx,headY-hR+4);c.lineTo(hsx-3,headY-hR-6-hs*2);c.lineTo(hsx+4,headY-hR+2);c.fill();
-      }
+      // Subtle eye slit glow only (silhouette-first)
+      const eyeCol=this.raging?(this.rageTier===2?'rgba(255,90,90,0.8)':'rgba(120,235,255,0.8)'):'rgba(235,235,235,0.28)';
+      c.strokeStyle=eyeCol;
+      c.lineWidth=1.4;
+      c.shadowBlur=this.raging?8:3;
+      c.shadowColor=eyeCol;
+      c.beginPath();c.moveTo(4,headY-2);c.lineTo(8,headY-3);c.stroke();
       c.shadowBlur=0;
     } else if(this.type===9&&!ghost){
       c.strokeStyle='#9900dd';c.lineWidth=4;c.shadowBlur=10;c.shadowColor='#9900dd';

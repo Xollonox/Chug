@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>CHUG: SHADOW OF FAME — v73 Adapted Silhouette</title>
+  <meta name="description" content="CHUG: Shadow of Fame — a browser-based fighting RPG. Battle through story Acts and Parts. Level up your fighter and allocate stats. Unlock powerful combos and sealed training disciplines. Spend coins and gems in the Armory to gear up. Fully playable on mobile (landscape) and desktop.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  
+
+<!-- v73 file: chug_v73_adapted_silhouette.html -->
+<!-- ════════════════════════════════════════════════
+     CHUG: SHADOW OF FAME — HTML STRUCTURE
+     All screens, HUD, controls, overlays
+     Edit here to change screen layout
+     Run build.py after editing
+════════════════════════════════════════════════ -->
+
+  <meta name="theme-color" content="#050505">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/squad.css">
+  <link rel="stylesheet" href="css/menu.css">
+  <link rel="stylesheet" href="css/fight.css">
+  <link rel="stylesheet" href="css/armory.css">
+  <link rel="stylesheet" href="css/viewport.css">
+  <link rel="stylesheet" href="css/training.css">
+</head>
+<body>
+
+<div id="bg-layer">
+  <div id="chapter-wallpaper" aria-hidden="true"></div>
+  <div class="bg-fog"></div>
+  <div class="moon" id="moon"></div>
+  <!-- SF2 DOJO ENVIRONMENT -->
+  <div class="dojo-wrap" id="dojoWrap" style="opacity:0">
+    <!-- Shoji wall grid -->
+    <div class="shoji-wall"></div>
+    <!-- Pink window cutout right side -->
+    <div class="dojo-window">
+      <div class="dojo-window-inner">
+        <div class="cherry-mountains"></div>
+        <div class="cherry-tree"></div>
+        <!-- Punching bag -->
+        <div class="punch-bag-wrap">
+          <div class="punch-bag-rope"></div>
+          <div class="punch-bag"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Floor -->
+    <div class="dojo-floor"></div>
+    <!-- Floor line -->
+    <div class="dojo-floor-line"></div>
+  </div>
+  <div class="torii-wrap" style="opacity:0;pointer-events:none">
+    <div class="torii-post left"></div>
+    <div class="torii-post right"></div>
+    <div class="torii-beam1"></div>
+    <div class="torii-beam2"></div>
+  </div>
+  <div class="ground" id="groundEl" style="display:none"><div class="ground-line"></div></div>
+  <div class="bg-particles" id="bgParticles"></div>
+</div>
+<div id="rage-overlay"></div>
+<canvas id="game"></canvas>
+<canvas id="dojoCanvas"></canvas>
+
+<div id="global-coins" class="hud-pill" style="display:none!important"><span class="pill-icon">🪙</span><span class="pill-val" id="coin-val">0</span></div>
+<div id="global-gems" class="hud-pill" style="display:none!important"><span class="pill-icon">💎</span><span class="pill-val" id="gem-val">0</span></div>
+<div id="global-level" class="hud-pill" style="display:none!important"><span class="pill-icon" style="font-size:9px;letter-spacing:1px;">LV</span><span class="pill-val" id="lv-val">1</span></div>
+<button id="btn-ingame-menu" onclick="quitToMenu()">◀ MENU</button>
+
+<!-- ══ CINEMATIC TITLE SCREEN ══ -->
+<div id="intro-screen" class="screen active-screen" onclick="introHandleClick(event)">
+  <canvas id="introBgCanvas"></canvas>
+  <div class="intro-title-wrap">
+    <div class="intro-eyebrow">A SHADOW OF FAME STORY</div>
+    <div class="intro-sub">SHADOW OF FAME</div>
+    <div class="intro-title">CHUGDOW<br>FIGHT</div>
+    <div class="intro-rule"></div>
+    <nav class="intro-menu" id="introMenu">
+      <button class="intro-menu-btn focused" id="introBtn-continue" onclick="introSelect('continue')">CONTINUE</button>
+      <button class="intro-menu-btn"         id="introBtn-new"      onclick="introSelect('new')">NEW GAME</button>
+    </nav>
+  </div>
+  <div class="intro-hint">
+    <div class="intro-hint-line">CHUGDOW FIGHT</div>
+    <div class="intro-hint-line">© SHADOW OF FAME</div>
+  </div>
+</div>
+
+<div id="menu-screen" class="screen">
+  <!-- Top bar SF2 style -->
+  <div class="sf2-topbar">
+    <div class="sf2-star-wrap">
+      <span class="sf2-star-icon">★</span>
+      <span class="sf2-lv-val" id="sf2-lv">1</span>
+      <div class="sf2-xp-track"><div class="sf2-xp-fill" id="sf2-xp"></div></div>
+    </div>
+    <div class="sf2-coins-wrap">
+      <span class="sf2-coin-icon">🪙</span>
+      <span class="sf2-coin-val" id="sf2-coins">0</span>
+    </div>
+  </div>
+
+  <button id="dojoMenuRibbon" class="dojo-menu-ribbon" onclick="showMenuScroll('toggle')">MENU</button>
+
+  <!-- sidebar removed -->
+
+  <!-- GUIDE dialogue on menu -->
+  <div class="menu-guide-scroll" id="menuGuideScroll">
+    <div class="mgs-roll mgs-roll-top"></div>
+    <div class="mgs-body">
+      <div class="mgs-portrait-wrap">
+        <div class="mgs-portrait"></div>
+      </div>
+      <div class="mgs-text" id="menuGuideText">...You're back.</div>
+    </div>
+    <div class="mgs-roll mgs-roll-bot"></div>
+  </div>
+
+  <!-- Main scroll -->
+  <div class="sf2-scroll-wrap" id="menuScrollWrap">
+    <div class="sf2-scroll-roll sf2-scroll-top"></div>
+    <div class="sf2-scroll-body">
+      <div class="menu-inner">
+    <div class="menu-eyebrow">CHUGDOW FIGHT</div>
+    <h1 class="menu-wordmark">SHADOW<span class="menu-wordmark-sub">OF FAME</span></h1>
+    <div class="menu-rule"></div>
+    <button class="menu-btn" onclick="openWorldMap()"><div class="btn-arrow">◉</div>WORLD MAP</button>
+    <button class="menu-btn" onclick="openCamp()"><div class="btn-arrow">🔥</div>ASH CAMP</button>
+    <button class="menu-btn" onclick="openLevelScreen()"><div class="btn-arrow">★</div>CHARACTER</button>
+    <button class="menu-btn" onclick="openTraining()"><div class="btn-arrow">🔥</div>TRAINING</button>
+    <button class="menu-btn" onclick="openShop()"><div class="btn-arrow">⚔</div>ARMORY</button>
+    <button class="menu-btn" onclick="openRoster()"><div class="btn-arrow">👥</div>ROSTER</button>
+    <button class="menu-btn" onclick="openCodex()"><div class="btn-arrow">📖</div>CODEX</button>
+    <button class="menu-btn" onclick="openSquad()"><div class="btn-arrow">⚔</div>SQUAD</button>
+    <button class="menu-btn" onclick="openSettings()"><div class="btn-arrow">⚙</div>SETTINGS</button>
+  </div>
+    </div>
+    <div class="sf2-scroll-roll sf2-scroll-bot"></div>
+  </div>
+</div>
+
+<!-- ACT SELECT (main) -->
+<div id="chapter-screen" class="screen">
+  <div class="chapter-wrap">
+    <div class="chapter-header">SELECT ACT</div>
+    <div class="chapter-divider"></div>
+
+    <!-- ACT I -->
+    <div class="chapter-card" id="act1-card" onclick="openAct(1)">
+      <div class="chap-num">I</div>
+      <div class="chap-info">
+        <div class="chap-title">ACT I — SHADOW OF FAME</div>
+        <div class="chap-sub">Parts 1 — 10 · The Fall through Erasure</div>
+        <div class="chap-parts" id="act1-dots">
+          <span class="chap-dot" id="cdot1">●</span>
+          <span class="chap-dot" id="cdot2">●</span>
+          <span class="chap-dot" id="cdot3">●</span>
+          <span class="chap-dot" id="cdot4">●</span>
+          <span class="chap-dot" id="cdot5">●</span>
+          <span style="color:rgba(200,147,26,0.2);margin:0 3px;">·</span>
+          <span class="chap-dot" id="cdot6">●</span>
+          <span class="chap-dot" id="cdot7">●</span>
+          <span class="chap-dot" id="cdot8">●</span>
+          <span class="chap-dot" id="cdot9">●</span>
+          <span class="chap-dot" id="cdot10">●</span>
+        </div>
+      </div>
+      <div class="chap-lock" id="act1-lock">▶</div>
+    </div>
+
+    <!-- ACT II -->
+    <div class="chapter-card locked" id="act2-card" onclick="openAct(2)">
+      <div class="chap-num dim" id="act2-num">II</div>
+      <div class="chap-info">
+        <div class="chap-title" id="act2-title">ACT II — AFTERIMAGE</div>
+        <div class="chap-sub">Parts 11 — 20 · Coming...</div>
+        <div class="chap-parts">
+          <span class="chap-dot" id="cdot11">●</span>
+          <span style="color:rgba(200,147,26,0.1);font-size:9px;letter-spacing:2px;margin-left:4px;">+ MORE</span>
+        </div>
+      </div>
+      <div class="chap-lock" id="act2-lock">🔒</div>
+    </div>
+
+    <button class="chapter-back" onclick="closeChapterSelect()">◀ BACK</button>
+  </div>
+</div>
+
+<!-- ACT I CHAPTER SELECT -->
+<div id="act1-screen" class="screen" style="background:rgba(0,0,0,0.94);/* bd-filter removed */">
+  <div class="chapter-wrap">
+    <div style="font-size:10px;letter-spacing:6px;color:rgba(200,147,26,0.4);text-align:center;margin-bottom:4px;">ACT I</div>
+    <div class="chapter-header" style="font-size:18px;">SHADOW OF FAME</div>
+    <div class="chapter-divider"></div>
+
+    <!-- Chapter I -->
+    <div class="chapter-card" id="chap1-card" onclick="startChapter(1)">
+      <div class="chap-num" style="font-size:clamp(20px,4vw,30px);">CH.I</div>
+      <div class="chap-info">
+        <div class="chap-title">THE FALL</div>
+        <div class="chap-sub">Parts 1 — 5 · The Fall through Controlled</div>
+        <div class="chap-parts">
+          <span class="chap-dot" id="ch1dot1">●</span>
+          <span class="chap-dot" id="ch1dot2">●</span>
+          <span class="chap-dot" id="ch1dot3">●</span>
+          <span class="chap-dot" id="ch1dot4">●</span>
+          <span class="chap-dot" id="ch1dot5">●</span>
+        </div>
+      </div>
+      <div class="chap-lock" id="chap1-lock">▶</div>
+    </div>
+
+    <!-- Chapter II -->
+    <div class="chapter-card locked" id="chap2-card" onclick="startChapter(2)">
+      <div class="chap-num dim" id="chap2-num" style="font-size:clamp(20px,4vw,30px);">CH.II</div>
+      <div class="chap-info">
+        <div class="chap-title" id="chap2-title">VANISHED</div>
+        <div class="chap-sub">Parts 6 — 10 · Vanished through Erasure</div>
+        <div class="chap-parts">
+          <span class="chap-dot" id="ch2dot6">●</span>
+          <span class="chap-dot" id="ch2dot7">●</span>
+          <span class="chap-dot" id="ch2dot8">●</span>
+          <span class="chap-dot" id="ch2dot9">●</span>
+          <span class="chap-dot" id="ch2dot10">●</span>
+        </div>
+      </div>
+      <div class="chap-lock" id="chap2-lock">🔒</div>
+    </div>
+
+    <button class="chapter-back" onclick="closeAct()">◀ ACTS</button>
+  </div>
+</div>
+
+<!-- ACT II CHAPTER SELECT -->
+<div id="act2-screen" class="screen" style="background:rgba(0,0,0,0.94);/* bd-filter removed */">
+  <div class="chapter-wrap">
+    <div style="font-size:10px;letter-spacing:6px;color:rgba(200,147,26,0.4);text-align:center;margin-bottom:4px;">ACT II</div>
+    <div class="chapter-header" style="font-size:18px;">AFTERIMAGE</div>
+    <div class="chapter-divider"></div>
+
+    <!-- Chapter III -->
+    <div class="chapter-card locked" id="chap3-card" onclick="startChapter(3)">
+      <div class="chap-num dim" id="chap3-num" style="font-size:clamp(20px,4vw,30px);">CH.III</div>
+      <div class="chap-info">
+        <div class="chap-title" id="chap3-title">AFTERIMAGE</div>
+        <div class="chap-sub">Part 11 — New threats emerge</div>
+        <div class="chap-parts">
+          <span class="chap-dot" id="ch3dot11">●</span>
+        </div>
+      </div>
+      <div class="chap-lock" id="chap3-lock">🔒</div>
+    </div>
+
+    <button class="chapter-back" onclick="closeAct()">◀ ACTS</button>
+  </div>
+</div>
+
+<!-- ASH CAMP -->
+<div id="camp-screen" class="screen">
+  <div class="camp-header-bar">
+    <div class="camp-eyebrow">CHUGDOW FIGHT</div>
+    <div class="camp-title">ASH CAMP</div>
+    <div class="camp-subtitle" id="campSubtitle">HOME BASE · SHADOW OF FAME</div>
+    <div class="camp-rule"></div>
+  </div>
+
+  <div class="camp-scroll" id="campScroll">
+
+    <!-- ── COMMAND GROUP ── -->
+    <div class="camp-group-label">COMMAND</div>
+
+    <!-- MISSION BOARD -->
+    <div class="camp-section" id="campMissionSection" data-open="true">
+      <div class="camp-section-head" onclick="toggleCampSection('campMissionBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+        <div class="camp-section-left">
+          <div class="camp-section-icon-wrap"><span class="camp-section-icon">📋</span></div>
+          <div class="camp-section-text">
+            <div class="camp-section-title">MISSION BOARD</div>
+            <div class="camp-section-sub">Active objectives · next targets</div>
+          </div>
+        </div>
+        <div class="camp-section-badge" id="campMissionBadge">—</div>
+        <span class="camp-section-chevron">▾</span>
+      </div>
+      <div class="camp-section-body" id="campMissionBody"></div>
+    </div>
+
+    <!-- STRATEGY -->
+    <div class="camp-section" id="campStrategySection" data-open="true">
+      <div class="camp-section-head" onclick="toggleCampSection('campStrategyBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+        <div class="camp-section-left">
+          <div class="camp-section-icon-wrap"><span class="camp-section-icon">🗺</span></div>
+          <div class="camp-section-text">
+            <div class="camp-section-title">STRATEGY</div>
+            <div class="camp-section-sub">Briefings · known enemies · domains</div>
+          </div>
+        </div>
+        <div class="camp-section-badge dim" id="campStrategyBadge">INTEL</div>
+        <span class="camp-section-chevron">▾</span>
+      </div>
+      <div class="camp-section-body" id="campStrategyBody"></div>
+    </div>
+
+    <!-- ── FIGHTERS GROUP ── -->
+    <div class="camp-group-label">FIGHTERS</div>
+
+    <!-- ROSTER OVERVIEW -->
+    <div class="camp-section" id="campRosterSection" data-open="true">
+      <div class="camp-section-head" onclick="toggleCampSection('campRosterBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+        <div class="camp-section-left">
+          <div class="camp-section-icon-wrap"><span class="camp-section-icon">👥</span></div>
+          <div class="camp-section-text">
+            <div class="camp-section-title">ROSTER</div>
+            <div class="camp-section-sub">Active fighters · camp presence</div>
+          </div>
+        </div>
+        <div class="camp-section-badge" id="campRosterBadge">—</div>
+        <span class="camp-section-chevron">▾</span>
+      </div>
+      <div class="camp-section-body" id="campRosterBody"></div>
+    </div>
+
+    <!-- RECOVERY AREA -->
+    <div class="camp-section" id="campRecoverySection" data-open="true">
+      <div class="camp-section-head" onclick="toggleCampSection('campRecoveryBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+        <div class="camp-section-left">
+          <div class="camp-section-icon-wrap"><span class="camp-section-icon">💚</span></div>
+          <div class="camp-section-text">
+            <div class="camp-section-title">RECOVERY</div>
+            <div class="camp-section-sub">Healing · status watch</div>
+          </div>
+        </div>
+        <div class="camp-section-badge alert" id="campRecoveryBadge" style="display:none">—</div>
+        <div class="camp-section-badge dim" id="campRecoveryBadgeDim">CLEAR</div>
+        <span class="camp-section-chevron">▾</span>
+      </div>
+      <div class="camp-section-body" id="campRecoveryBody"></div>
+    </div>
+
+    <!-- ── CAMP FACILITIES GROUP ── -->
+    <div class="camp-group-label">CAMP</div>
+
+    <!-- TRAINING — gateway -->
+    <div class="camp-section camp-section-gateway" id="campTrainingSection">
+      <div class="camp-section-head" onclick="openTraining()">
+        <div class="camp-section-left">
+          <div class="camp-section-icon-wrap"><span class="camp-section-icon">🔥</span></div>
+          <div class="camp-section-text">
+            <div class="camp-section-title">TRAINING</div>
+            <div class="camp-section-sub" id="campTrainingSub">Kaizen · Raevan · Sorya</div>
+          </div>
+        </div>
+        <div class="camp-section-badge">ENTER →</div>
+      </div>
+    </div>
+
+    <!-- ARMORY — gateway -->
+    <div class="camp-section camp-section-gateway" id="campArmorySection">
+      <div class="camp-section-head" onclick="closeCamp();openShop();">
+        <div class="camp-section-left">
+          <div class="camp-section-icon-wrap"><span class="camp-section-icon">⚔</span></div>
+          <div class="camp-section-text">
+            <div class="camp-section-title">ARMORY</div>
+            <div class="camp-section-sub">Weapons · upgrades · gear</div>
+          </div>
+        </div>
+        <div class="camp-section-badge">ENTER →</div>
+      </div>
+    </div>
+
+    <!-- CODEX — gateway -->
+    <div class="camp-section camp-section-gateway" id="campCodexSection">
+      <div class="camp-section-head" onclick="openCodex()">
+        <div class="camp-section-left">
+          <div class="camp-section-icon-wrap"><span class="camp-section-icon">📖</span></div>
+          <div class="camp-section-text">
+            <div class="camp-section-title">CODEX</div>
+            <div class="camp-section-sub">Records · lore · history</div>
+          </div>
+        </div>
+        <div class="camp-section-badge">ENTER →</div>
+      </div>
+    </div>
+
+    <!-- ── STORY GROUP ── -->
+    <div class="camp-group-label">STORY</div>
+
+    <!-- CAMP EVENTS -->
+    <div class="camp-section" id="campEventsSection" data-open="true">
+      <div class="camp-section-head" onclick="toggleCampSection('campEventsBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+        <div class="camp-section-left">
+          <div class="camp-section-icon-wrap"><span class="camp-section-icon">💬</span></div>
+          <div class="camp-section-text">
+            <div class="camp-section-title">CAMP EVENTS</div>
+            <div class="camp-section-sub">Scenes · moments · dialogue</div>
+          </div>
+        </div>
+        <div class="camp-section-badge" id="campEventsBadge">—</div>
+        <span class="camp-section-chevron">▾</span>
+      </div>
+      <div class="camp-section-body" id="campEventsBody"></div>
+    </div>
+
+  </div><!-- /camp-scroll -->
+
+  <button class="camp-back" onclick="closeCamp()">◀ BACK</button>
+</div>
+
+<!-- TRAINING PATHS -->
+<div id="training-screen" class="screen">
+  <div class="training-header-bar">
+    <div class="training-eyebrow">ASH CAMP</div>
+    <div class="training-title">TRAINING</div>
+    <div class="training-rule"></div>
+    <div class="training-tabs" id="trainingTabs">
+      <button class="training-tab active" onclick="setTrainingPath('range')"  id="tTab-range">🏹 RANGE</button>
+      <button class="training-tab"        onclick="setTrainingPath('rage')"   id="tTab-rage">🔥 RAGE</button>
+      <button class="training-tab"        onclick="setTrainingPath('domain')" id="tTab-domain">🌀 DOMAIN</button>
+    </div>
+  </div>
+  <div class="training-scroll" id="trainingPathBody"></div>
+  <button class="training-back" onclick="closeTraining()">◀ BACK</button>
+</div>
+
+<!-- CODEX -->
+<div id="codex-screen" class="screen">
+  <div class="codex-header-bar">
+    <div class="codex-eyebrow">ASH CAMP</div>
+    <div class="codex-title">CODEX</div>
+    <div class="codex-subtitle">Shadow archive · enemy journal · faction records</div>
+    <div class="codex-rule"></div>
+    <div class="codex-tabs" id="codexTabs">
+      <button class="codex-tab active" onclick="setCodexFilter('all')"      id="cTab-all">ALL</button>
+      <button class="codex-tab"        onclick="setCodexFilter('enemy')"    id="cTab-enemy">ENEMIES</button>
+      <button class="codex-tab"        onclick="setCodexFilter('boss')"     id="cTab-boss">BOSSES</button>
+      <button class="codex-tab"        onclick="setCodexFilter('faction')"  id="cTab-faction">FACTIONS</button>
+      <button class="codex-tab"        onclick="setCodexFilter('defeated')" id="cTab-defeated">DEFEATED</button>
+    </div>
+  </div>
+  <div class="codex-shell">
+    <div class="codex-summary" id="codexSummary">
+      <div class="codex-summary-copy">
+        <div class="codex-summary-label">Archive View</div>
+        <div class="codex-summary-title">All Records</div>
+      </div>
+      <div class="codex-summary-count"><strong>0</strong><span>Entries</span></div>
+    </div>
+    <div class="codex-scroll" id="codexList"></div>
+  </div>
+  <button class="codex-back" onclick="closeCodex()">◀ BACK</button>
+</div>
+
+<!-- ROSTER -->
+<div id="roster-screen" class="screen">
+  <div class="roster-header-bar">
+    <div class="roster-eyebrow">CHUGDOW FIGHT</div>
+    <div class="roster-title">ROSTER</div>
+    <div class="roster-subtitle">Command Dossiers • Trust / Memory / Combat Readiness</div>
+    <div class="roster-rule"></div>
+    <div class="roster-tabs" id="rosterTabs">
+      <button class="roster-tab active" onclick="setRosterFilter('all')">All</button>
+      <button class="roster-tab" onclick="setRosterFilter('playable')">Active</button>
+      <button class="roster-tab" onclick="setRosterFilter('recovering')">Recovery</button>
+      <button class="roster-tab" onclick="setRosterFilter('enemy')">Enemies</button>
+      <button class="roster-tab" onclick="setRosterFilter('locked')">Locked</button>
+    </div>
+    <div class="roster-overview" id="rosterOverview">
+      <div class="roster-overview-chip"><span class="roster-overview-k">Visible</span><span class="roster-overview-v">0</span></div>
+      <div class="roster-overview-chip"><span class="roster-overview-k">Active</span><span class="roster-overview-v">0</span></div>
+      <div class="roster-overview-chip"><span class="roster-overview-k">Hostiles</span><span class="roster-overview-v">0</span></div>
+    </div>
+  </div>
+  <div class="roster-scroll" id="rosterList"></div>
+  <button class="roster-back" onclick="closeRoster()">◀ BACK</button>
+</div>
+
+<!-- SQUAD SETUP -->
+<div id="squad-screen" class="screen">
+  <div class="squad-header-bar">
+    <div class="squad-eyebrow">CHUGDOW FIGHT</div>
+    <div class="squad-title">SQUAD</div>
+    <div class="squad-subtitle">TACTICAL FORMATION · LEAD &amp; SUPPORT DEPLOYMENT</div>
+    <div class="squad-rule"></div>
+
+    <div class="squad-bonus-bar" id="squadBonusBar">
+      <div class="squad-bonus-chip" id="sbc-dmg"><span class="sbc-ico">⚔</span><span class="sbc-key">DMG</span><span class="sbc-val" id="sbc-dmg-val">+0</span></div>
+      <div class="squad-bonus-chip" id="sbc-def"><span class="sbc-ico">🛡</span><span class="sbc-key">DEF</span><span class="sbc-val" id="sbc-def-val">+0</span></div>
+      <div class="squad-bonus-chip" id="sbc-rage"><span class="sbc-ico">🔥</span><span class="sbc-key">RAGE</span><span class="sbc-val" id="sbc-rage-val">+0%</span></div>
+      <div class="squad-bonus-chip" id="sbc-rec"><span class="sbc-ico">✚</span><span class="sbc-key">REC</span><span class="sbc-val" id="sbc-rec-val">+0</span></div>
+    </div>
+
+    <div class="squad-command-copy" id="squadCommandCopy">Select a lead fighter and reinforce them with tactical support positions.</div>
+  </div>
+
+  <div class="squad-scroll">
+    <section class="squad-formation-panel squad-main-panel">
+      <div class="squad-section-head">
+        <div>
+          <div class="squad-section-kicker">PRIMARY COMBATANT</div>
+          <div class="squad-section-lbl">MAIN FIGHTER</div>
+        </div>
+        <div class="squad-section-pill" id="squadMainStatusPill">ACTIVE</div>
+      </div>
+
+      <div class="squad-slot main-slot" id="squadMainSlot" onclick="openSquadPicker('main')">
+        <div class="squad-slot-mark">01</div>
+
+        <div class="squad-portrait-wrap">
+          <div class="squad-portrait-aura"></div>
+          <div class="squad-portrait" id="squadMainIcon">🥊</div>
+          <div class="squad-slot-tag" id="squadMainTag">LEAD</div>
+        </div>
+
+        <div class="squad-slot-info">
+          <div class="squad-slot-name-row">
+            <div class="squad-slot-name" id="squadMainName">CHUG</div>
+            <div class="squad-slot-ribbon">ELITE</div>
+          </div>
+          <div class="squad-slot-role" id="squadMainRole">Protagonist · Striker</div>
+          <div class="squad-slot-bonus" id="squadMainBonus"></div>
+          <div class="squad-slot-signature" id="squadMainSignature">Lead your formation into battle.</div>
+        </div>
+
+        <div class="squad-slot-side">
+          <div class="squad-slot-state">HERO FOCUS</div>
+          <div class="squad-slot-action" id="squadMainAction">CHANGE</div>
+        </div>
+      </div>
+
+      <div class="squad-formation-note" id="squadMainNote">Your lead fighter defines the center of the formation.</div>
+    </section>
+
+    <section class="squad-formation-panel squad-support-panel">
+      <div class="squad-section-head">
+        <div>
+          <div class="squad-section-kicker">TACTICAL POSITIONS</div>
+          <div class="squad-section-lbl">SUPPORT</div>
+        </div>
+        <div class="squad-section-pill" id="squadSupportStatusPill">0 / 2 READY</div>
+      </div>
+
+      <div class="squad-support-stack">
+        <div class="squad-slot support-slot" id="squadSupport0" onclick="openSquadPicker('support',0)">
+          <div class="squad-slot-mark">I</div>
+
+          <div class="squad-portrait-wrap">
+            <div class="squad-portrait-aura"></div>
+            <div class="squad-portrait" id="squadSupportIcon0">＋</div>
+            <div class="squad-slot-tag" id="squadSupportTag0">OPEN</div>
+          </div>
+
+          <div class="squad-slot-info">
+            <div class="squad-slot-name-row">
+              <div class="squad-slot-name" id="squadSupportName0">EMPTY SLOT</div>
+            </div>
+            <div class="squad-slot-role" id="squadSupportRole0">Tap to assign support</div>
+            <div class="squad-slot-bonus" id="squadSupportBonus0"></div>
+            <div class="squad-slot-signature" id="squadSupportSignature0">Reserve this position for passive battle support.</div>
+          </div>
+
+          <div class="squad-slot-side">
+            <div class="squad-slot-state">TACTICAL</div>
+            <div class="squad-slot-action" id="squadSupportAction0">ASSIGN</div>
+          </div>
+        </div>
+
+        <div class="squad-slot support-slot" id="squadSupport1" onclick="openSquadPicker('support',1)">
+          <div class="squad-slot-mark">II</div>
+
+          <div class="squad-portrait-wrap">
+            <div class="squad-portrait-aura"></div>
+            <div class="squad-portrait" id="squadSupportIcon1">＋</div>
+            <div class="squad-slot-tag" id="squadSupportTag1">OPEN</div>
+          </div>
+
+          <div class="squad-slot-info">
+            <div class="squad-slot-name-row">
+              <div class="squad-slot-name" id="squadSupportName1">EMPTY SLOT</div>
+            </div>
+            <div class="squad-slot-role" id="squadSupportRole1">Tap to assign support</div>
+            <div class="squad-slot-bonus" id="squadSupportBonus1"></div>
+            <div class="squad-slot-signature" id="squadSupportSignature1">Reserve this position for passive battle support.</div>
+          </div>
+
+          <div class="squad-slot-side">
+            <div class="squad-slot-state">TACTICAL</div>
+            <div class="squad-slot-action" id="squadSupportAction1">ASSIGN</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="squad-formation-note" id="squadSupportSummary">Supports grant passive bonuses to your active formation.</div>
+    </section>
+
+    <div class="squad-empty-note" id="squadFormationStatus">No support fighters assigned yet. Fill both positions to unlock a denser squad profile.</div>
+  </div>
+
+  <div id="squadPicker">
+    <div class="picker-header">
+      <div class="picker-head-copy">
+        <div class="picker-title" id="pickerTitle">SELECT FIGHTER</div>
+        <div class="picker-subtitle" id="pickerSubtitle">Choose who will anchor this formation.</div>
+      </div>
+      <button class="picker-cancel" onclick="closeSquadPicker()">✕ CANCEL</button>
+    </div>
+    <div class="picker-list" id="pickerList"></div>
+  </div>
+
+  <button class="squad-back" onclick="closeSquad()">◀ BACK</button>
+</div>
+
+<!-- ARMORY -->
+<div id="shop-screen" class="screen">
+<div class="shop-wrap">
+  <div style="text-align:center;padding-top:20px;">
+    <div class="shop-header">ARMORY</div>
+    <div class="shop-sub">EQUIP SHADOW GEAR · UPGRADE YOUR POWER</div>
+  </div>
+
+  <div class="shop-section">
+    <div class="shop-section-title">Weapons</div>
+    <div class="shop-grid">
+      <div class="shop-item" id="buy-knuckle" onclick="buyItem('weapon','knuckle',100,'coin')">
+        <div class="s-icon">🥊</div><div class="s-name">Iron Knuckles</div>
+        <div class="s-desc">+6 DMG. Fast pressure. Gold plated.</div><div class="s-price">🪙 100</div>
+      </div>
+      <div class="shop-item" id="buy-dagger" onclick="buyItem('weapon','dagger',250,'coin')">
+        <div class="s-icon">🗡️</div><div class="s-name">Void Dagger</div>
+        <div class="s-desc">+8 DMG. +Spd. Pierces armor.</div><div class="s-price">🪙 250</div>
+      </div>
+      <div class="shop-item" id="buy-katana" onclick="buyItem('weapon','katana',420,'coin')">
+        <div class="s-icon">⚔️</div><div class="s-name">Shadow Katana</div>
+        <div class="s-desc">+11 DMG. Curved blade, long slash.</div><div class="s-price">🪙 420</div>
+      </div>
+      <div class="shop-item" id="buy-staff" onclick="buyItem('weapon','staff',360,'coin')">
+        <div class="s-icon">🪄</div><div class="s-name">Monk Staff</div>
+        <div class="s-desc">+7 DMG. Wide sweep reach.</div><div class="s-price">🪙 360</div>
+      </div>
+      <div class="shop-item" id="buy-scythe" onclick="buyItem('weapon','scythe',650,'coin')">
+        <div class="s-icon">☽</div><div class="s-name">Shadow Scythe</div>
+        <div class="s-desc">+14 DMG. Death arc. Void-cursed blade.</div><div class="s-price">🪙 650</div>
+      </div>
+      <div class="shop-item" id="buy-claws" onclick="buyItem('weapon','claws',380,'coin')">
+        <div class="s-icon">🔱</div><div class="s-name">Void Claws</div>
+        <div class="s-desc">+7 DMG. +Speed. Triple dual-hit.</div><div class="s-price">🪙 380</div>
+      </div>
+      <div class="shop-item" id="buy-hammer" onclick="buyItem('weapon','hammer',480,'coin')">
+        <div class="s-icon">🔨</div><div class="s-name">Doom Hammer</div>
+        <div class="s-desc">+13 DMG. Ground-shatter impact.</div><div class="s-price">🪙 480</div>
+      </div>
+          <div class="shop-item" id="buy-sword" onclick="buyItem('weapon','sword',80,'coin')">
+        <div class="s-icon">⚔️</div><div class="s-name">Iron Sword</div>
+        <div class="s-desc">+8 DMG. Balanced. Reliable.</div><div class="s-price coin">🪙 80</div>
+      </div>
+      <div class="shop-item" id="buy-nunchaku" onclick="buyItem('weapon','nunchaku',240,'coin')">
+        <div class="s-icon">🔗</div><div class="s-name">Void Nunchaku</div>
+        <div class="s-desc">+7 DMG. Fastest. Dual hit.</div><div class="s-price coin">🪙 240</div>
+      </div>
+      <div class="shop-item" id="buy-knives" onclick="buyItem('weapon','knives',200,'coin')">
+        <div class="s-icon">🔪</div><div class="s-name">Twin Knives</div>
+        <div class="s-desc">+6 DMG. +Speed. Triple hit.</div><div class="s-price coin">🪙 200</div>
+      </div>
+      <div class="shop-item" id="buy-spear" onclick="buyItem('weapon','spear',380,'coin')">
+        <div class="s-icon">🏹</div><div class="s-name">Shadow Spear</div>
+        <div class="s-desc">+12 DMG. Max reach. Slow.</div><div class="s-price coin">🪙 380</div>
+      </div>
+      <div class="shop-item" id="buy-whip" onclick="buyItem('weapon','whip',8,'gem')">
+        <div class="s-icon">〰️</div><div class="s-name">Void Whip</div>
+        <div class="s-desc">+9 DMG. Range. Slows foe.</div><div class="s-price gem">💎 8</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shop-section">
+    <div class="shop-section-title">Armor</div>
+    <div class="shop-grid">
+      <div class="shop-item" id="buy-lightarmor" onclick="buyItem('armor','lightarmor',180,'coin')">
+        <div class="s-icon">🥋</div><div class="s-name">Shadow Gi</div>
+        <div class="s-desc">+3 DEF. +25 HP. Light.</div><div class="s-price">🪙 180</div>
+      </div>
+      <div class="shop-item" id="buy-heavyarmor" onclick="buyItem('armor','heavyarmor',420,'coin')">
+        <div class="s-icon">🛡️</div><div class="s-name">Titan Armor</div>
+        <div class="s-desc">+6 DEF. +50 HP. Heavy.</div><div class="s-price">🪙 420</div>
+      </div>
+      <div class="shop-item" id="buy-voidarmor" onclick="buyItem('armor','voidarmor',5,'gem')">
+        <div class="s-icon">🌑</div><div class="s-name">Void Shroud</div>
+        <div class="s-desc">+9 DEF. +70 HP. Absorbs 10%.</div><div class="s-price gem">💎 5</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shop-section">
+    <div class="shop-section-title">Upgrades</div>
+    <div class="shop-grid">
+      <div class="shop-item" id="buy-rage2" onclick="buyItem('upgrade','rage2',700,'coin')">
+        <div class="s-icon">🔥</div><div class="s-name">Rage Mode II</div>
+        <div class="s-desc">Bigger aura. More DMG. Less taken.</div><div class="s-price">🪙 700</div>
+      </div>
+      <div class="shop-item" id="buy-strength" onclick="buyItem('upgrade','strength',400,'coin')">
+        <div class="s-icon">💪</div><div class="s-name">Strength I</div>
+        <div class="s-desc">+5 base DMG on all attacks.</div><div class="s-price">🪙 400</div>
+      </div>
+      <div class="shop-item" id="buy-strength2" onclick="buyItem('upgrade','strength2',800,'coin')">
+        <div class="s-icon">⚡</div><div class="s-name">Strength II</div>
+        <div class="s-desc">+10 base DMG. Requires Str I.</div><div class="s-price">🪙 800</div>
+      </div>
+      <div class="shop-item" id="buy-speed" onclick="buyItem('upgrade','speed',350,'coin')">
+        <div class="s-icon">💨</div><div class="s-name">Speed I</div>
+        <div class="s-desc">+2 movement & attack speed.</div><div class="s-price">🪙 350</div>
+      </div>
+      <div class="shop-item" id="buy-speed2" onclick="buyItem('upgrade','speed2',700,'coin')">
+        <div class="s-icon">🌪️</div><div class="s-name">Speed II</div>
+        <div class="s-desc">+4 spd. Faster combos. Req Speed I.</div><div class="s-price">🪙 700</div>
+      </div>
+      <div class="shop-item" id="buy-endurance" onclick="buyItem('upgrade','endurance',450,'coin')">
+        <div class="s-icon">❤️</div><div class="s-name">Endurance I</div>
+        <div class="s-desc">+30 max HP. Regen on kill.</div><div class="s-price">🪙 450</div>
+      </div>
+      <div class="shop-item" id="buy-endurance2" onclick="buyItem('upgrade','endurance2',900,'coin')">
+        <div class="s-icon">💎</div><div class="s-name">Endurance II</div>
+        <div class="s-desc">+60 HP. 15% damage reduction.</div><div class="s-price">🪙 900</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding-bottom:24px;">
+    <button class="shop-back" onclick="closeShop()">◀ RETURN</button>
+  </div>
+</div>
+</div>
+
+<!-- STORY -->
+<div id="story-screen" class="screen">
+  <!-- MODE 1: Full parchment story card (bottom of screen) -->
+  <div class="dialogue-box" id="dbox">
+    <div class="dlg-rod-top"></div>
+    <div class="dlg-parchment">
+      <div class="dlg-portrait-col" id="dava">
+        <div class="dlg-portrait-frame" id="dlgPortraitFrame">
+          <span class="dlg-portrait-icon" id="dlgPortraitIcon">⚔</span>
+        </div>
+      </div>
+      <div class="dlg-text-col">
+        <div class="speaker-name" id="dname">CHUG</div>
+        <p class="dlg-text" id="dtxt">Loading...</p>
+      </div>
+    </div>
+    <div class="dlg-bottom-bar">
+      <!-- Clarify how to progress dialogue: support tap, click, Space or Enter -->
+      <div class="dlg-hint">CLICK/TAP OR PRESS SPACE/ENTER TO ADVANCE</div>
+      <button class="dlg-continue-btn" id="dlgContinueBtn" onclick="advance()">MORE ▶</button>
+    </div>
+    <div class="dlg-rod-bot"></div>
+  </div>
+
+  <!-- MODE 2: Dojo/Tutorial top-right hanging scroll -->
+  <div id="dojo-dialogue">
+    <div class="dojo-rod dojo-rod-top"></div>
+    <div class="dojo-body">
+      <div class="dojo-portrait" id="dojoPortrait">🥋</div>
+      <div class="dojo-text-wrap" onclick="advance()">
+        <div class="dojo-speaker" id="dojoSpeaker">GUIDE</div>
+        <div class="dojo-text" id="dojoText">…</div>
+      </div>
+    </div>
+    <div class="dojo-rod dojo-rod-bot"></div>
+  </div>
+</div>
+
+<!-- PART END CARD -->
+<div id="part-end-screen" class="screen">
+  <div class="part-end-card" id="partEndCard">
+    <div class="pec-top-bar"></div>
+    <div class="pec-part-label" id="pecPartLabel">PART I</div>
+    <div class="pec-title" id="pecTitle">THE FALL</div>
+    <div class="pec-divider"></div>
+    <div class="pec-stars" id="pecStars">
+      <div class="pec-star" id="pecS1">★</div>
+      <div class="pec-star big" id="pecS2">★</div>
+      <div class="pec-star" id="pecS3">★</div>
+    </div>
+    <div class="pec-complete">COMPLETE</div>
+    <div class="pec-coins" id="pecCoins">+150 🪙</div>
+    <div class="pec-unlocked" id="pecUnlocked">PART II UNLOCKED</div>
+    <button class="pec-btn" onclick="partEndContinue()">CONTINUE ▶</button>
+    <div class="pec-bottom-bar"></div>
+  </div>
+</div>
+
+<!-- REWARD / RESULT SCREEN -->
+<div id="reward-screen" class="screen">
+  <div class="rwd-wrap" id="rwdWrap">
+    <div class="rwd-heading win" id="rwdHeading">You win!</div>
+    <div class="rwd-mode-banner" id="rwdModeBanner">STORY · CHAPTER I</div>
+    <div class="rwd-progress" id="rwdProgress"></div>
+    <div class="rwd-rows" id="rwdRows"></div>
+    <div class="rwd-divider"></div>
+    <div class="rwd-total-row">
+      <div class="rwd-total-label">
+        <div class="rwd-star-icon">✦</div>
+        <div class="rwd-star-val" id="rwdStarVal">0</div>
+      </div>
+      <div class="rwd-total-value">
+        <div class="rwd-coin-icon"></div>
+        <span id="rwdTotal">0</span>
+      </div>
+    </div>
+    <button class="rwd-btn" id="rwdBtn" onclick="rewardContinue()">CONTINUE ▶</button>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud-screen" class="screen">
+  <div class="hud-bar">
+    <div class="health-wrapper">
+      <div class="fighter-info">
+        <div class="fighter-name">CHUG</div>
+        <div class="rounds"><div class="dot" id="pr1"></div><div class="dot" id="pr2"></div><div class="dot" id="pr3"></div></div>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="p-hp"></div></div>
+      <div id="rage-container">
+        <div class="rage-bar-bg"><div id="p-rage"></div></div>
+        <div id="rage-text">▶ RAGE READY</div>
+      </div>
+      <div id="stam-container">
+        <div class="stam-bar-bg"><div id="p-stam"></div></div>
+        <div id="stam-text" style="display:none">STAMINA</div>
+      </div>
+      <div id="xp-container">
+        <div class="xp-bar-bg"><div id="p-xp"></div></div>
+      </div>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer" id="timer">50</div>
+      <div class="round-label" id="round-label">ROUND 1</div>
+    </div>
+    <div class="health-wrapper" style="text-align:right;align-items:flex-end;">
+      <div class="fighter-info" style="flex-direction:row-reverse;">
+        <div class="fighter-name" id="e-name">VOID SHADOW</div>
+        <div class="rounds"><div class="dot" id="er1"></div><div class="dot" id="er2"></div><div class="dot" id="er3"></div></div>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" id="e-hp"></div></div>
+    </div>
+  </div><!-- /hud-bar -->
+
+  <!-- RESCUE BATTLE INDICATOR (v32) — hidden unless rescue active -->
+  <div id="rescue-indicator">
+    <div class="rescue-label-row">
+      <span class="rescue-icon">🔓</span>
+      <span class="rescue-label">BREAKING CONTROL</span>
+      <span class="rescue-char-name" id="rescueCharName">—</span>
+    </div>
+    <div class="rescue-meter-track">
+      <div class="rescue-meter-fill" id="rescueMeterFill"></div>
+      <div class="rescue-meter-pip" style="left:50%"></div>
+      <div class="rescue-meter-pip" style="left:80%"></div>
+    </div>
+  </div>
+
+</div><!-- /hud-screen -->
+<div id="controls">
+  <!-- LEFT: SF2 Joystick D-pad -->
+  <div class="ctrl-left">
+    <div class="sf2-dpad" id="sf2DpadWrap">
+      <div class="sf2-dpad-outer">
+        <span class="sf2-arr sf2-arr-l">◀</span>
+        <span class="sf2-arr sf2-arr-r">▶</span>
+        <span class="sf2-arr sf2-arr-u">▲</span>
+      </div>
+      <div class="sf2-dpad-inner" id="sf2DpadKnob"></div>
+      <!-- Hidden inputs for game logic -->
+      <div class="c-btn" id="btn-l" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"></div>
+      <div class="c-btn" id="btn-r" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"></div>
+      <div class="c-btn" id="btn-j" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"></div>
+    </div>
+    <!-- RAGE button left of dpad -->
+    <div id="btn-rage" data-ctrl-editable="true" data-ctrl-label="RAGE" style="margin-left:8px;margin-bottom:8px;">RAGE</div>
+  </div>
+  <!-- RIGHT: SF2 diamond buttons -->
+  <div class="ctrl-right" id="ctrlRightWrap">
+    <div class="c-btn" id="btn-p">PUNCH</div>
+    <div class="c-btn" id="btn-k">KICK</div>
+    <div class="c-btn" id="btn-g">GRAB</div>
+    <div class="c-btn" id="btn-t">THROW</div>
+  </div>
+</div>
+
+<div id="kbhint">A/D Move · W Jump · F Punch · K Kick · G Grab · T Throw · R Rage</div>
+<div id="banner"></div>
+<div id="flash"></div>
+
+<!-- COMBO COUNTER -->
+<div id="combo-display" style="position:absolute;top:90px;left:50%;transform:translateX(-50%);z-index:30;pointer-events:none;text-align:center;display:none;">
+  <div id="combo-count" style="font-family:'Cinzel Decorative',serif;font-size:clamp(28px,6vw,48px);font-weight:700;color:#fff;text-shadow:0 0 20px rgba(255,100,0,0.8),0 4px 12px #000;letter-spacing:4px;transition:transform 0.1s;"></div>
+  <div id="combo-label" style="font-size:10px;letter-spacing:6px;color:rgba(255,160,60,0.8);margin-top:-4px;font-family:'Cinzel',serif;"></div>
+</div>
+
+<!-- PART INDICATOR (top center during story) -->
+<div id="part-indicator" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:100;pointer-events:none;display:none;
+  background:rgba(0,0,0,0.6);border:1px solid var(--border);padding:5px 18px;border-radius:20px;
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;color:rgba(200,147,26,0.7);white-space:nowrap;"></div>
+
+<!-- SETTINGS SCREEN -->
+<div id="settings-screen" class="screen">
+  <div class="settings-shell">
+    <div class="settings-title-block">
+      <div class="settings-subtitle">AUDIO · FEEDBACK · CONTROLS</div>
+      <div class="settings-header">SETTINGS</div>
+      <div class="settings-rule"></div>
+      <div class="settings-caption">Tune the chamber. Keep the fight sharp.</div>
+    </div>
+
+    <div class="settings-panel">
+      <section class="settings-section">
+        <div class="settings-section-head">
+          <div class="settings-section-title">AUDIO</div>
+          <div class="settings-section-rule"></div>
+        </div>
+
+        <div class="settings-band settings-band-volume">
+          <div class="settings-band-copy">
+            <div class="settings-label">MUSIC</div>
+            <div class="settings-meta">Menu, story and battle themes</div>
+          </div>
+          <div class="settings-vol-row premium-vol-row">
+            <button class="vol-btn" onclick="adjustVol('music',-0.1)" aria-label="Decrease music">−</button>
+            <div class="settings-vol-stack">
+              <div class="vol-track settings-vol-track" data-type="music"><div class="vol-fill" id="music-vol-fill" style="width:70%"></div></div>
+              <div class="settings-vol-value" id="music-vol-value">70%</div>
+            </div>
+            <button class="vol-btn" onclick="adjustVol('music',0.1)" aria-label="Increase music">+</button>
+          </div>
+        </div>
+
+        <div class="settings-band settings-band-volume">
+          <div class="settings-band-copy">
+            <div class="settings-label">SFX</div>
+            <div class="settings-meta">Hits, movement and impact feedback</div>
+          </div>
+          <div class="settings-vol-row premium-vol-row">
+            <button class="vol-btn" onclick="adjustVol('sfx',-0.1)" aria-label="Decrease SFX">−</button>
+            <div class="settings-vol-stack">
+              <div class="vol-track settings-vol-track" data-type="sfx"><div class="vol-fill" id="sfx-vol-fill" style="width:100%"></div></div>
+              <div class="settings-vol-value" id="sfx-vol-value">100%</div>
+            </div>
+            <button class="vol-btn" onclick="adjustVol('sfx',0.1)" aria-label="Increase SFX">+</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section-head">
+          <div class="settings-section-title">FEEDBACK</div>
+          <div class="settings-section-rule"></div>
+        </div>
+
+        <div class="settings-band">
+          <div class="settings-band-copy">
+            <div class="settings-label">SCREEN SHAKE</div>
+            <div class="settings-meta">Impact tremor during heavy strikes</div>
+          </div>
+          <button class="toggle-btn settings-toggle" id="shake-toggle" onclick="toggleShake()">ON</button>
+        </div>
+
+        <div class="settings-band">
+          <div class="settings-band-copy">
+            <div class="settings-label">COMBO DISPLAY</div>
+            <div class="settings-meta">Keep combo count visible in combat</div>
+          </div>
+          <button class="toggle-btn settings-toggle" id="combo-toggle" onclick="toggleComboDsp()">ON</button>
+        </div>
+
+        <div class="settings-band">
+          <div class="settings-band-copy">
+            <div class="settings-label">TOUCH BUTTONS</div>
+            <div class="settings-meta">Show or hide the on-screen controls</div>
+          </div>
+          <button class="toggle-btn settings-toggle" id="ctrl-visibility-toggle" onclick="toggleCtrlVisibility()">SHOW</button>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section-head">
+          <div class="settings-section-title">CONTROL GUIDE</div>
+          <div class="settings-section-rule"></div>
+        </div>
+
+        <div class="settings-keyboard-band">
+          <div class="settings-keyboard-head">
+            <div class="settings-label">KEYBOARD (PC)</div>
+            <div class="settings-meta">Reference only · layout stays unchanged</div>
+          </div>
+          <div class="settings-controls-grid settings-kbd-grid">
+            <div class="settings-kbd-item"><span class="settings-kbd-keys"><span class="kbd-key">A</span><span class="kbd-key">D</span></span><span class="settings-kbd-desc">Move</span></div>
+            <div class="settings-kbd-item"><span class="settings-kbd-keys"><span class="kbd-key">W</span></span><span class="settings-kbd-desc">Jump</span></div>
+            <div class="settings-kbd-item"><span class="settings-kbd-keys"><span class="kbd-key">F</span></span><span class="settings-kbd-desc">Punch</span></div>
+            <div class="settings-kbd-item"><span class="settings-kbd-keys"><span class="kbd-key">K</span></span><span class="settings-kbd-desc">Kick</span></div>
+            <div class="settings-kbd-item"><span class="settings-kbd-keys"><span class="kbd-key">G</span></span><span class="settings-kbd-desc">Grab</span></div>
+            <div class="settings-kbd-item"><span class="settings-kbd-keys"><span class="kbd-key">T</span></span><span class="settings-kbd-desc">Throw</span></div>
+            <div class="settings-kbd-item"><span class="settings-kbd-keys"><span class="kbd-key">R</span></span><span class="settings-kbd-desc">Rage</span></div>
+            <div class="settings-kbd-item"><span class="settings-kbd-keys"><span class="kbd-key">G</span><span class="kbd-key">A</span><span class="kbd-key">K</span></span><span class="settings-kbd-desc">Slam</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section-head">
+          <div class="settings-section-title">LAYOUT</div>
+          <div class="settings-section-rule"></div>
+        </div>
+
+        <div class="settings-band settings-band-action">
+          <div class="settings-band-copy">
+            <div class="settings-label">EDIT LAYOUT</div>
+            <div class="settings-meta">Drag and place touch controls for your grip</div>
+          </div>
+          <button class="settings-action-btn" onclick="closeSettings();openCtrlEditor();">EDIT LAYOUT</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="settings-bottom-bar">
+      <button class="settings-back" onclick="closeSettings()">◀ BACK</button>
+    </div>
+  </div>
+</div>
+
+<div id="chap-transition">
+
+  <div id="chap-transition-txt">
+    <div class="ct-chapter" id="ct-chapter-lbl">CHAPTER I</div>
+    <div class="ct-title" id="ct-title-lbl">SHADOW OF FAME</div>
+  </div>
+</div>
+
+<!-- ══ WORLD MAP SCREEN ══ -->
+<div id="worldmap-screen" class="screen">
+  <!-- Parchment background layers -->
+  <div id="wm-bg"></div>
+  <div id="wm-mountains"></div>
+  <div id="wm-maplines"></div>
+  <div id="wm-vignette"></div>
+  <div id="wm-dim"></div>
+
+  <!-- Left slide-out panel: world list -->
+  <div id="wm-side">
+    <div id="wm-side-inner">
+      <div class="wm-side-header">
+        <div class="wm-side-eyebrow">CHUGDOW FIGHT</div>
+        <div class="wm-side-title">WORLDS</div>
+      </div>
+      <div id="wm-world-list"></div>
+    </div>
+  </div>
+
+  <!-- Center: top bar + chapter panel -->
+  <div id="wm-center">
+    <div id="wm-top-bar">
+      <div class="wm-hamburger" onclick="toggleWmPanel()" title="Worlds">☰</div>
+      <div>
+        <div class="wm-top-title" id="wm-active-title">WORLD MAP</div>
+        <div class="wm-top-sub" id="wm-active-sub">SELECT YOUR WORLD · ENTER THE SHADOW</div>
+      </div>
+    </div>
+    <div id="wm-chapter-panel"></div>
+  </div>
+
+  <button class="wm-back" onclick="closeWorldMap()">◀ MENU</button>
+</div>
+
+<!-- ══ WORLD DETAIL SCREEN ══ -->
+<div id="worlddetail-screen" class="screen">
+  <div class="wd-wrap" id="wd-wrap"></div>
+</div>
+
+<!-- ══ LEVEL UP POPUP ══ -->
+<div id="levelup-overlay">
+  <div class="lu-card">
+    <div class="lu-top"></div>
+    <div class="lu-level-num" id="lu-level-num">LEVEL 2</div>
+    <div class="lu-label">SHADOW RANK INCREASED</div>
+    <div class="lu-divider"></div>
+    <div class="lu-pts-remaining" id="lu-pts-remaining">3 STAT POINTS TO ALLOCATE</div>
+    <div class="lu-stats">
+      <div class="lu-stat"><div class="lu-stat-name">HP</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('hp',-1)">−</button><div class="lu-stat-val" id="lu-hp">0</div><button class="lu-stat-btn" onclick="allocStat('hp',1)">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">ATK</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('atk',-1)">−</button><div class="lu-stat-val" id="lu-atk">0</div><button class="lu-stat-btn" onclick="allocStat('atk',1)">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">DEF</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('def',-1)">−</button><div class="lu-stat-val" id="lu-def">0</div><button class="lu-stat-btn" onclick="allocStat('def',1)">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">SPD</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('spd',-1)">−</button><div class="lu-stat-val" id="lu-spd">0</div><button class="lu-stat-btn" onclick="allocStat('spd',1)">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">CRIT%</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('crit',-1)">−</button><div class="lu-stat-val" id="lu-crit">0</div><button class="lu-stat-btn" onclick="allocStat('crit',1)">+</button></div></div>
+    </div>
+    <div class="lu-remaining" id="lu-remaining"></div>
+    <div class="lu-unlock-msg" id="lu-unlock-msg"></div>
+    <button class="lu-confirm" id="lu-confirm-btn" onclick="confirmLevelUp()">CONFIRM ▶</button>
+    <div class="lu-bottom"></div>
+  </div>
+</div>
+
+<!-- ══ CHARACTER / LEVEL SCREEN ══ -->
+<div id="level-screen" class="screen">
+  <div class="lv-wrap">
+
+    <!-- CROWN HEADER -->
+    <div class="lv-crown">
+      <div class="lv-header">CHARACTER</div>
+      <div class="lv-header-sub">PROGRESSION CHAMBER</div>
+      <div class="lv-rule">
+        <div class="lv-rule-line"></div>
+        <div class="lv-rule-gem-sm"></div>
+        <div class="lv-rule-gem"></div>
+        <div class="lv-rule-gem-sm"></div>
+        <div class="lv-rule-line"></div>
+      </div>
+    </div>
+
+    <!-- LEVEL + XP BLOCK -->
+    <div class="lv-progression-block">
+      <div class="lv-lvrow">
+        <div class="lv-badge">
+          <div class="lv-badge-label">LEVEL</div>
+          <div class="lv-badge-num" id="lv-cur">1</div>
+        </div>
+        <div class="lv-xp-center">
+          <div class="lv-xp-fraction"><span id="lv-xp-text">0 / 300 XP</span></div>
+          <div class="lv-xpbar-bg">
+            <div class="lv-xpbar-fill" id="lv-xpbar-fill" style="width:0%"></div>
+          </div>
+          <div class="lv-xp-sublabel">EXPERIENCE</div>
+        </div>
+        <div class="lv-badge lv-badge-next">
+          <div class="lv-badge-label">NEXT</div>
+          <div class="lv-badge-num" id="lv-next">2</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAT POINTS BANNER -->
+    <div class="lv-pts-banner" id="lv-pts-banner">
+      <div class="lv-pts-label">UNSPENT STAT POINTS</div>
+      <div class="lv-pts-val-wrap">
+        <div class="lv-pts-val-num" id="lv-pts-val">0</div>
+        <div class="lv-pts-val-unit">PTS</div>
+      </div>
+    </div>
+
+    <!-- ATTRIBUTES HEADER -->
+    <div class="lv-section-header">
+      <div class="lv-section-title">ATTRIBUTES</div>
+      <div class="lv-section-rule"></div>
+    </div>
+
+    <!-- STAT ROWS -->
+    <div class="lv-stats-block">
+      <div class="lv-stat-row" data-stat="hp">
+        <div class="lv-stat-icon">❤️</div>
+        <div class="lv-stat-middle">
+          <div class="lv-stat-label">HP</div>
+          <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-hp" style="width:0%"></div></div>
+        </div>
+        <div class="lv-stat-controls">
+          <button class="lv-stat-btn2" onclick="allocStatMenu('hp',-1)">−</button>
+          <div class="lv-stat-current" id="ms-hp">0</div>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('hp',1)">+</button>
+        </div>
+      </div>
+      <div class="lv-stat-row" data-stat="atk">
+        <div class="lv-stat-icon">⚔️</div>
+        <div class="lv-stat-middle">
+          <div class="lv-stat-label">ATK</div>
+          <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-atk" style="width:0%"></div></div>
+        </div>
+        <div class="lv-stat-controls">
+          <button class="lv-stat-btn2" onclick="allocStatMenu('atk',-1)">−</button>
+          <div class="lv-stat-current" id="ms-atk">0</div>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('atk',1)">+</button>
+        </div>
+      </div>
+      <div class="lv-stat-row" data-stat="def">
+        <div class="lv-stat-icon">🛡️</div>
+        <div class="lv-stat-middle">
+          <div class="lv-stat-label">DEF</div>
+          <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-def" style="width:0%"></div></div>
+        </div>
+        <div class="lv-stat-controls">
+          <button class="lv-stat-btn2" onclick="allocStatMenu('def',-1)">−</button>
+          <div class="lv-stat-current" id="ms-def">0</div>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('def',1)">+</button>
+        </div>
+      </div>
+      <div class="lv-stat-row" data-stat="spd">
+        <div class="lv-stat-icon">💨</div>
+        <div class="lv-stat-middle">
+          <div class="lv-stat-label">SPD</div>
+          <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-spd" style="width:0%"></div></div>
+        </div>
+        <div class="lv-stat-controls">
+          <button class="lv-stat-btn2" onclick="allocStatMenu('spd',-1)">−</button>
+          <div class="lv-stat-current" id="ms-spd">0</div>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('spd',1)">+</button>
+        </div>
+      </div>
+      <div class="lv-stat-row" data-stat="crit">
+        <div class="lv-stat-icon">🎯</div>
+        <div class="lv-stat-middle">
+          <div class="lv-stat-label">CRIT%</div>
+          <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-crit" style="width:0%"></div></div>
+        </div>
+        <div class="lv-stat-controls">
+          <button class="lv-stat-btn2" onclick="allocStatMenu('crit',-1)">−</button>
+          <div class="lv-stat-current" id="ms-crit">0</div>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('crit',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMBO UNLOCKS -->
+    <div class="lv-combo-section">
+      <div class="lv-unlocks-title">COMBO UNLOCKS</div>
+      <div class="lv-combo-list" id="lv-combo-list"></div>
+    </div>
+
+    <button class="lv-back2" onclick="closeLevelScreen()">◀ &nbsp;BACK</button>
+  </div>
+</div>
+
+  <script src="js/game-core.js"></script>
+  <script src="js/menu.js"></script>
+  <script src="js/rage.js"></script>
+  <script src="js/fight-ui.js"></script>
+  <script src="js/armory.js"></script>
+  <script src="js/viewport.js"></script>
+  <script src="js/squad.js"></script>
+  <script src="js/training.js"></script>
+</body>
+</html>
