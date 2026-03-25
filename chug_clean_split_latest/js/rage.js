@@ -7112,6 +7112,9 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
     let leanX=(this.state==='atk'&&this.atkType==='k')?-8:
       (this.state==='atk'&&this.atkType==='slam')?-14:
       (this.state==='atk'&&this.atkType==='throw')?10:2;
+    if(this.isP&&(this.state==='idle'||this.state==='run'||this.state==='walk')){
+      leanX=8;
+    }
     let leftShoulderX=-tW/2+leanX;
     let rightShoulderX=tW/2+leanX+breathe;
     let wind=-this.vx*3;
@@ -7247,6 +7250,102 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
       let uX=dx/len,uY=dy/len;
       c.beginPath();c.moveTo(fx-uX*2,fy-uY*2);c.lineTo(fx-uX*12,fy-uY*12);c.stroke();
     };
+
+    // Player (Chug) v73 silhouette rebuild — custom body construction
+    if(this.isP){
+      const drawLimb=(sx,sy,jx,jy,ex,ey,w1,w2)=>{
+        c.lineCap='round';
+        c.strokeStyle='#050505';
+        c.lineWidth=w1;
+        c.beginPath();c.moveTo(sx,sy);c.lineTo(jx,jy);c.stroke();
+        c.lineWidth=w2;
+        c.beginPath();c.moveTo(jx,jy);c.lineTo(ex,ey);c.stroke();
+      };
+      const drawFoot=(x,y,dir,size=7)=>{
+        c.save();
+        c.translate(x,y-1);
+        c.rotate(dir*0.08);
+        c.fillStyle='#040404';
+        c.beginPath();
+        c.moveTo(-size*0.9,-size*0.45);
+        c.lineTo(size*1.3,-size*0.28);
+        c.lineTo(size*1.6,size*0.18);
+        c.lineTo(-size*0.45,size*0.55);
+        c.closePath();
+        c.fill();
+        c.restore();
+      };
+
+      const hipCX=(leanX*0.45)-2;
+      const hipCY=waistY+1;
+      const neckX=leanX+4;
+      const neckY=shoulderY-2;
+      const lsX=leftShoulderX-1;
+      const rsX=rightShoulderX+2;
+      const lsY=shoulderY+2;
+      const rsY=shoulderY-2;
+      const lHipX=hipCX-13;
+      const rHipX=hipCX+10;
+      const lHipY=hipCY+1;
+      const rHipY=hipCY-1;
+
+      // Legs first (back then front) for depth
+      drawLimb(lHipX,lHipY,bKneeX,bKneeY,bFootX,bFootY,13,10);
+      drawFoot(bFootX,bFootY,this.dir,6);
+      drawLimb(rHipX,rHipY,fKneeX,fKneeY,fFootX,fFootY,14,11);
+      drawFoot(fFootX,fFootY,this.dir,7);
+
+      // Torso silhouette (broad shoulders -> tapered waist)
+      c.fillStyle='#060606';
+      c.beginPath();
+      c.moveTo(lsX,lsY);
+      c.lineTo(rsX,rsY);
+      c.lineTo(rHipX+1,rHipY);
+      c.lineTo(hipCX+2,hipCY+13);
+      c.lineTo(lHipX-2,lHipY+1);
+      c.closePath();
+      c.fill();
+
+      // Upper torso wedge for chest structure
+      c.fillStyle='#040404';
+      c.beginPath();
+      c.moveTo(neckX-6,neckY+1);
+      c.lineTo(neckX+7,neckY-1);
+      c.lineTo(hipCX+2,hipCY-8);
+      c.lineTo(hipCX-5,hipCY-7);
+      c.closePath();
+      c.fill();
+
+      // Arms: guard arm + loaded strike arm
+      drawLimb(lsX+1,lsY+1,bElbowX,bElbowY,bHandX,bHandY,11,9);
+      drawLimb(rsX-1,rsY+1,fElbowX,fElbowY,fHandX,fHandY,12,10);
+
+      // Fists
+      c.fillStyle='#030303';
+      c.beginPath();c.arc(bHandX,bHandY,5.4,0,Math.PI*2);c.fill();
+      c.beginPath();c.arc(fHandX,fHandY,5.8,0,Math.PI*2);c.fill();
+
+      // Neck + compact head (not rounded mascot)
+      c.strokeStyle='#040404';
+      c.lineWidth=5;
+      c.beginPath();c.moveTo(neckX,neckY);c.lineTo(neckX+1,headY+5);c.stroke();
+      c.fillStyle='#050505';
+      c.beginPath();
+      c.ellipse(neckX+2,headY,8.2,9.6,0.2,0,Math.PI*2);
+      c.fill();
+
+      // Subtle eye slit only
+      const eyeCol=this.raging?(this.rageTier===2?'rgba(255,88,88,0.85)':'rgba(115,232,255,0.85)'):'rgba(230,230,230,0.24)';
+      c.strokeStyle=eyeCol;
+      c.lineWidth=1.3;
+      c.shadowBlur=this.raging?7:2;
+      c.shadowColor=eyeCol;
+      c.beginPath();c.moveTo(neckX+5,headY-1.5);c.lineTo(neckX+9,headY-2.1);c.stroke();
+      c.shadowBlur=0;
+
+      c.restore();
+      return;
+    }
 
     if(this.type===9&&!ghost){
       c.strokeStyle='#9900dd';c.lineWidth=5;c.shadowBlur=8;c.shadowColor='#9900dd';
