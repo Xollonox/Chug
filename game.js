@@ -478,7 +478,6 @@ window.introHandleClick = window.introHandleClick || function(e){
     window.showScreen = function(){
       const out = oldShowScreen.apply(this, arguments);
       requestAnimationFrame(syncMenuPanelLight);
-      setTimeout(syncMenuPanelLight, 24);
       return out;
     };
   }
@@ -489,7 +488,6 @@ window.introHandleClick = window.introHandleClick || function(e){
     window.showMenuScroll = function(){
       const out = oldShowMenuScroll.apply(this, arguments);
       requestAnimationFrame(syncMenuPanelLight);
-      setTimeout(syncMenuPanelLight, 24);
       return out;
     };
   }
@@ -1496,9 +1494,8 @@ function toggleMusic(){
    DO NOT reorder — other files depend on vars declared here.
 ════════════════════════════════════════════════ */
 
-// VO stubs (removed)
+// VO stub (kept — still called from teardown paths)
 function stopVO(){}
-function speakVO(){}
 
 // ── CANVAS ──
 let cvs=document.getElementById('game');
@@ -1999,9 +1996,6 @@ function syncCtrlEditorUI(){
   const btn = document.getElementById('ctrl-visibility-toggle');
   if(btn) btn.innerText = settingsCtrlHidden ? 'HIDDEN' : 'SHOW';
 }
-
-// Patch loadSettings to load ctrl positions too
-function syncCtrlEditorUI(){} // no-op now, editor is fullscreen
 
 
 
@@ -12193,7 +12187,6 @@ loadGame = function(){
   v9LoadGame();
 };
 
-function showGemsLevel(){}
 // Coins update hook
 const _origUpdateCoins = updateCoins;
 updateCoins = function(amt){
