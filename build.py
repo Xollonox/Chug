@@ -21,6 +21,14 @@ def main() -> int:
         return 1
 
     print("CHUG static sanity check passed. No build step required.")
+    
+    local_engine = root / "game_engine.js"
+    if local_engine.is_file():
+        print("[INFO] Local game_engine.js detected! The game loader will run in offline mode.")
+    else:
+        print("[INFO] No local game_engine.js found. The game loader will fetch the engine from CDN at runtime.")
+        print("       To enable offline play and local engine development, save the engine script as 'game_engine.js'.")
+
     return 0
 
 

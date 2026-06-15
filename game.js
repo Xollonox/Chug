@@ -208,10 +208,17 @@
     log('[CHUG] Runtime safety patches applied.');
   }
 
-  loadScript(CDN_SRC)
-    .catch(function (err) {
-      console.warn('[CHUG] CDN load failed, trying raw fallback:', err);
-      return loadRawFallback();
+  loadScript('game_engine.js')
+    .then(function () {
+      console.log('[CHUG] Loaded local game_engine.js successfully.');
+    })
+    .catch(function () {
+      console.log('[CHUG] Local game_engine.js not found, falling back to CDN...');
+      return loadScript(CDN_SRC)
+        .catch(function (err) {
+          console.warn('[CHUG] CDN load failed, trying raw fallback:', err);
+          return loadRawFallback();
+        });
     })
     .then(applyPatches)
     .catch(function (err) {
