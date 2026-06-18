@@ -174,7 +174,7 @@
     <div class="chapter-divider"></div>
 
     <!-- ACT I -->
-    <div class="chapter-card" id="act1-card" onclick="openAct(1)">
+    <div class="chapter-card" id="act1-card" onclick="openAct(1)" role="button" tabindex="0" aria-label="Select Act 1: Shadow of Fame">
       <div class="chap-num">I</div>
       <div class="chap-info">
         <div class="chap-title">ACT I — SHADOW OF FAME</div>
@@ -197,7 +197,7 @@
     </div>
 
     <!-- ACT II -->
-    <div class="chapter-card locked" id="act2-card" onclick="openAct(2)">
+    <div class="chapter-card locked" id="act2-card" onclick="openAct(2)" role="button" tabindex="0" aria-label="Select Act 2: Afterimage (Locked)">
       <div class="chap-num dim" id="act2-num">II</div>
       <div class="chap-info">
         <div class="chap-title" id="act2-title">ACT II — AFTERIMAGE</div>
@@ -222,7 +222,7 @@
     <div class="chapter-divider"></div>
 
     <!-- Chapter I -->
-    <div class="chapter-card" id="chap1-card" onclick="startChapter(1)">
+    <div class="chapter-card" id="chap1-card" onclick="startChapter(1)" role="button" tabindex="0" aria-label="Start Chapter 1: The Fall">
       <div class="chap-num" style="font-size:clamp(20px,4vw,30px);">CH.I</div>
       <div class="chap-info">
         <div class="chap-title">THE FALL</div>
@@ -239,7 +239,7 @@
     </div>
 
     <!-- Chapter II -->
-    <div class="chapter-card locked" id="chap2-card" onclick="startChapter(2)">
+    <div class="chapter-card locked" id="chap2-card" onclick="startChapter(2)" role="button" tabindex="0" aria-label="Start Chapter 2: Vanished (Locked)">
       <div class="chap-num dim" id="chap2-num" style="font-size:clamp(20px,4vw,30px);">CH.II</div>
       <div class="chap-info">
         <div class="chap-title" id="chap2-title">VANISHED</div>
@@ -267,7 +267,7 @@
     <div class="chapter-divider"></div>
 
     <!-- Chapter III -->
-    <div class="chapter-card locked" id="chap3-card" onclick="startChapter(3)">
+    <div class="chapter-card locked" id="chap3-card" onclick="startChapter(3)" role="button" tabindex="0" aria-label="Start Chapter 3: Afterimage (Locked)">
       <div class="chap-num dim" id="chap3-num" style="font-size:clamp(20px,4vw,30px);">CH.III</div>
       <div class="chap-info">
         <div class="chap-title" id="chap3-title">AFTERIMAGE</div>
@@ -802,7 +802,7 @@
     <div class="dojo-rod dojo-rod-top"></div>
     <div class="dojo-body">
       <div class="dojo-portrait" id="dojoPortrait">🥋</div>
-      <div class="dojo-text-wrap" onclick="advance()">
+      <div class="dojo-text-wrap" onclick="advance()" role="button" tabindex="0" aria-label="Advance dialogue">
         <div class="dojo-speaker" id="dojoSpeaker">GUIDE</div>
         <div class="dojo-text" id="dojoText">…</div>
       </div>
@@ -915,11 +915,11 @@
   </div>
   <!-- RIGHT: SF2 diamond buttons -->
   <div class="ctrl-right" id="ctrlRightWrap">
-    <div class="c-btn" id="btn-p">PUNCH</div>
-    <div class="c-btn" id="btn-k">KICK</div>
-    <div class="c-btn" id="btn-g">GRAB</div>
-    <div class="c-btn" id="btn-t">THROW</div>
-    <div class="c-btn" id="btn-range" data-ctrl-editable="true" data-ctrl-label="RANGE">🔫</div>
+    <div class="c-btn" id="btn-p" role="button" tabindex="0" aria-label="Punch attack">PUNCH</div>
+    <div class="c-btn" id="btn-k" role="button" tabindex="0" aria-label="Kick attack">KICK</div>
+    <div class="c-btn" id="btn-g" role="button" tabindex="0" aria-label="Grab attack">GRAB</div>
+    <div class="c-btn" id="btn-t" role="button" tabindex="0" aria-label="Throw attack">THROW</div>
+    <div class="c-btn" id="btn-range" data-ctrl-editable="true" data-ctrl-label="RANGE" role="button" tabindex="0" aria-label="Range Attack">🔫</div>
   </div>
 </div>
 
@@ -1094,7 +1094,7 @@
   <!-- Center: top bar + chapter panel -->
   <div id="wm-center">
     <div id="wm-top-bar">
-      <div class="wm-hamburger" onclick="toggleWmPanel()" title="Worlds">☰</div>
+      <div class="wm-hamburger" onclick="toggleWmPanel()" title="Worlds" role="button" tabindex="0" aria-label="Toggle World Map sidebar">☰</div>
       <div>
         <div class="wm-top-title" id="wm-active-title">WORLD MAP</div>
         <div class="wm-top-sub" id="wm-active-sub">SELECT YOUR WORLD · ENTER THE SHADOW</div>

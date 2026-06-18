@@ -208,6 +208,18 @@
     log('[CHUG] Runtime safety patches applied.');
   }
 
+  function setupA11y() {
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        var el = document.activeElement;
+        if (el && el.getAttribute('role') === 'button') {
+          e.preventDefault();
+          el.click();
+        }
+      }
+    });
+  }
+
   loadScript('game_engine.js')
     .then(function () {
       console.log('[CHUG] Loaded local game_engine.js successfully.');
@@ -220,7 +232,10 @@
           return loadRawFallback();
         });
     })
-    .then(applyPatches)
+    .then(function () {
+      applyPatches();
+      setupA11y();
+    })
     .catch(function (err) {
       console.error('[CHUG] Could not load stable game runtime:', err);
     });
