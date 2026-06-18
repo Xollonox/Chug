@@ -6387,7 +6387,7 @@ function bindBtn(id,key){
   ['touchstart','pointerdown','mousedown'].forEach(ev=>el.addEventListener(ev,dn,{passive:false}));
   ['touchend','touchcancel','pointerup','pointerleave','mouseup','mouseleave'].forEach(ev=>el.addEventListener(ev,up,{passive:false}));
 }
-bindBtn('btn-l','l');bindBtn('btn-r','r');bindBtn('btn-j','j');bindBtn('btn-p','a');bindBtn('btn-k','k');bindBtn('btn-g','g');bindBtn('btn-t','t');bindBtn('btn-range','range');bindBtn('btn-rage','rage');
+bindBtn('btn-l','l');bindBtn('btn-r','r');bindBtn('btn-j','j');bindBtn('btn-p','a');bindBtn('btn-k','k');bindBtn('btn-g','g');bindBtn('btn-t','t');bindBtn('btn-range','range');bindBtn('btn-rage','rage');bindBtn('btn-u','u');bindBtn('btn-f','f');
 if(UI.dbox) UI.dbox.addEventListener('pointerdown',()=>advance());
 
 // ── VISUAL FX ──
@@ -7004,6 +7004,8 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
         if(this.atkType==='k')reach+=32*this.scale;
         if(this.atkType==='slam')reach+=58*this.scale;
         if(this.atkType==='throw')reach+=20*this.scale;
+        if(this.atkType==='u')reach+=40*this.scale;
+        if(this.atkType==='sw')reach+=50*this.scale;
         if(this.combo>=3)reach+=38*this.scale;
         if(this.raging)reach+=28*this.scale;
         if(this.isP&&weapon==='dagger')reach+=22*this.scale;
@@ -7042,7 +7044,7 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
         const hx=this.dir===1?this.x+this.w:this.x-reach;
         const hy=spearHeadY!==null?spearHeadY:(staffHeadY!==null?staffHeadY:
           airAttack?(this.y-this.h*0.3): // aerial - hit center mass
-          (this.y-(this.atkType==='k'?(this.combo>=3?80:30):(this.atkType==='slam'?35:(this.atkType==='throw'?40:60)))*this.scale));
+          (this.y-(this.atkType==='k'?(this.combo>=3?80:30):(this.atkType==='slam'?35:(this.atkType==='throw'?40:(this.atkType==='u'?70:30))))*this.scale));
         // Aerial attack: wider vertical hit window
         const enTop=airAttack?(en.y-en.h*1.2):en.y-en.h;
         if(hx<en.x+en.w&&hx+reach>en.x&&hy<en.y&&this.y>enTop){
@@ -7063,6 +7065,8 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
           if(this.atkType==='k'){d*=1.3;heavy=true;}
           if(this.atkType==='slam'){d*=2.1;heavy=true;screenShake=15;}
           if(this.atkType==='throw'){d*=1.7;heavy=true;en.vy=-6;en.vx=this.dir*14;}
+          if(this.atkType==='u'){d*=1.5;heavy=true;en.vy=-12;en.vx=this.dir*5;screenShake=6;}
+          if(this.atkType==='sw'){d*=0.9;en.vy=0;en.vx=this.dir*6;en.hitT=Math.max(en.hitT,6);}
           if(this.combo>=3&&this.atkType!=='slam'&&this.atkType!=='throw'){d*=1.85;heavy=true;}
           if(this.raging)d*=(this.rageTier===2?2.0:1.5);
           // Claws do double hit
@@ -7165,6 +7169,12 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
         let tryGrab=K.g;
         let inGrabRange=Math.abs((this.x+this.w/2)-(en.x+en.w/2))<115*Math.max(this.scale,en.scale)
           &&en.y>=GND-1&&en.hitT<=0&&en.state!=='grabbed'&&en.state!=='grab_exec'&&en.state!=='hit';
+        // SWEEP: G when out of grab range
+        if(K.g && !inGrabRange && this.atkT <= 0 && this.y >= GND-1 && this.stamina >= 14){
+          if(window.__chugSweep && window.__chugSweep(this, en, this.dir)){
+            K.g = 0;
+          }
+        }
 
         // THROW button — quick grab-and-launch without full swing
         if(K.t&&inGrabRange){
@@ -7189,6 +7199,14 @@ life:0.5+Math.random()*0.3,col:swingCol,w:Math.random()*16+8,tp:'s'});
           }
         } else if(K.k){
           if(this.stamina>=12){this.stamina=Math.max(0,this.stamina-12);this.attack('k');}
+        } else if(K.u && !K.a && !K.k && this.y >= GND-1 && this.stamina >= 18){
+          if(window.__chugUppercut && window.__chugUppercut(this, en, this.dir)){
+            K.u = 0;
+          }
+        } else if(K.f && !K.a && !K.k && this.y >= GND-1 && window.comboCount >= 5 && this.stamina >= 25){
+          if(window.__chugFinisher && window.__chugFinisher(this, en, window.comboCount)){
+            window.comboCount = 0; K.f = 0;
+          }
         } else if(K.range){
           if(fireRangedWeapon(this.x + this.w/2, this.y - this.h*0.4, this.dir)){
             K.range = 0;
@@ -16409,50 +16427,6 @@ function applyArmoryBonusesToPlayer(){
     setTimeout(() => beep(180, 'triangle', 0.15, 0.1), 160);
     return true;
   };
-
-  // ── PATCH UPDATE FOR FINISHER ──
-  const _origUpdate2 = Fighter.prototype.update;
-  Fighter.prototype.update = function(en){
-    const ret = _origUpdate2.call(this, en);
-    if(this.isP && this.atkT <= 0 && this.state !== 'atk' && window.comboCount >= 5){
-      if(K.a && K.k && this.y >= GND - 1){
-        window.__chugFinisher(this, en, window.comboCount);
-        window.comboCount = 0; K.a = 0; K.k = 0;
-      }
-    }
-    return ret;
-  };
-
-  // ── ADD NEW INPUT MAPPINGS ──
-  // Forward+Punch (running toward enemy + press a) = Uppercut
-  // We inject into the existing player input handler
-  window.__chugPatchInput = function(fighter, en){
-    if(!fighter || !en || fighter.hp <= 0 || en.hp <= 0) return;
-    // Uppercut: holding forward toward enemy + K.a while grounded
-    const towardEnemy = (fighter.dir === 1 && K.r) || (fighter.dir === -1 && K.l);
-    if(towardEnemy && K.a && fighter.atkT <= 0 && fighter.y >= GND-1){
-      if(window.__chugUppercut(fighter, en, fighter.dir)){
-        K.a = 0;
-      }
-    }
-    // Sweep: pressing K.g (grab) when far = sweep kick
-    if(K.g && fighter.atkT <= 0 && fighter.y >= GND-1 && !(Math.abs((fighter.x+fighter.w/2)-(en.x+en.w/2)) < 115*Math.max(fighter.scale,en.scale) && en.y >= GND-1 && en.hitT <= 0)){
-      if(window.__chugSweep(fighter, en, fighter.dir)){
-        K.g = 0;
-      }
-    }
-  };
-
-  // Hook into fight loop via a small interval (lazy but safe)
-  let _inputHook = setInterval(function(){
-    const fight = window.gameState === 'fight';
-    if(!fight) return;
-    const p = window.player;
-    const e = window.enemy;
-    if(p && e && p.hp > 0 && e.hp > 0 && typeof window.__chugPatchInput === 'function'){
-      window.__chugPatchInput(p, e);
-    }
-  }, 50);
 
 })();
 
