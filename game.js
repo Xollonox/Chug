@@ -16128,9 +16128,333 @@ function applyArmoryBonusesToPlayer(){
       return false;
     };
   }
-})();
+    const msg = String(ev && ev.message || '');
+    if(msg.includes("Cannot set properties of null") && msg.includes("innerText")){
+      const c = document.getElementById('coin-val') || document.getElementById('sf2-coins');
+      if(window.UI && !window.UI.cVal) window.UI.cVal = c;
+    }
+  });
 
 // =========================================================
+/* ════════════════════════════════════════════════
+   CHUG: SHADOW OF FAME
+   PREMIUM MOVES & ANIMATIONS — by Xollonox
+   New attacks, enhanced VFX, screen effects
+════════════════════════════════════════════════ */
+
+(function(){
+  'use strict';
+
+  // ── UPPERCUT LAUNCHER ──
+  window.__chugUppercut = function(fighter, en, dir){
+    if(fighter.atkT > 6 || fighter.stamina < 18) return false;
+    fighter.stamina = Math.max(0, fighter.stamina - 18);
+    fighter.atkT = Math.floor(18 * (fighter.raging ? 0.75 : 1));
+    fighter.hitF = Math.floor(fighter.atkT * 0.45);
+    fighter.state = 'atk';
+    fighter.atkType = 'u';
+    fighter.cWin = 30;
+    fighter.vy = -4;
+    beep(220, 'sawtooth', 0.22, 0.08);
+    return true;
+  };
+
+  // ── SWEEP KICK ──
+  window.__chugSweep = function(fighter, en, dir){
+    if(fighter.atkT > 6 || fighter.stamina < 14) return false;
+    fighter.stamina = Math.max(0, fighter.stamina - 14);
+    fighter.atkT = Math.floor(16 * (fighter.raging ? 0.7 : 1));
+    fighter.hitF = Math.floor(fighter.atkT * 0.5);
+    fighter.state = 'atk';
+    fighter.atkType = 'sw';
+    fighter.cWin = 28;
+    beep(160, 'triangle', 0.18, 0.06);
+    return true;
+  };
+
+  // ── ENHANCED HIT SPARKS ──
+  window.__chugHitSparks = function(x, y, dir, weapon, heavy, isCrit){
+    const count = heavy ? 20 : (isCrit ? 30 : 8);
+    const colors = {
+      default: ['#ffd700','#ff8c00','#fff4cc'],
+      katana:  ['#e8e0d0','#c0c0c0','#ffffff'],
+      dagger:  ['#00e5ff','#00bcd4','#80deea'],
+      staff:   ['#c8a84c','#a08030','#e8d080'],
+      hammer:  ['#ff6d00','#ff3d00','#ffab00'],
+      scythe:  ['#b388ff','#7c4dff','#ea80fc'],
+      claws:   ['#ff4081','#f50057','#ff80ab'],
+      knuckle: ['#ffd700','#ff8c00','#ffe082'],
+      spear:   ['#82b1ff','#448aff','#b388ff'],
+      none:    ['#ffffff','#e0e0e0','#f5f5f5']
+    };
+    const pal = colors[weapon] || colors.default;
+    for(let i = 0; i < count; i++){
+      const angle = -Math.PI/2 + (Math.random()-0.5)*Math.PI * (dir > 0 ? 1 : -1);
+      const speed = 2 + Math.random() * (heavy ? 8 : 4);
+      particles.push({
+        x: x + (Math.random()-0.5)*8,
+        y: y + (Math.random()-0.5)*6,
+        vx: Math.cos(angle) * speed * dir,
+        vy: Math.sin(angle) * speed - Math.random() * 2,
+        life: 0.3 + Math.random() * 0.4,
+        col: pal[Math.floor(Math.random() * pal.length)],
+        w: Math.random() * (heavy ? 12 : 6) + 3,
+        tp: 's'
+      });
+    }
+    if(heavy){
+      for(let i = 0; i < 12; i++){
+        const a = (i/12) * Math.PI * 2;
+        particles.push({
+          x: x, y: y,
+          vx: Math.cos(a) * (3 + Math.random() * 3),
+          vy: Math.sin(a) * (3 + Math.random() * 3),
+          life: 0.2 + Math.random() * 0.2,
+          col: 'rgba(255,255,255,0.6)',
+          w: Math.random() * 4 + 2,
+          tp: 's'
+        });
+      }
+    }
+  };
+
+  // ── AIR DISTORTION WAVE ──
+  window.__chugAirDistortion = function(x, y, dir, size){
+    const sz = size || 30;
+    for(let i = 0; i < 6; i++){
+      particles.push({
+        x: x + (Math.random()-0.5)*10,
+        y: y + (Math.random()-0.5)*10,
+        vx: Math.random() * 2 * dir,
+        vy: (Math.random()-0.5) * 2,
+        life: 0.15 + Math.random() * 0.1,
+        col: 'rgba(255,255,255,0.15)',
+        w: sz * (0.5 + Math.random() * 0.5),
+        tp: 'f'
+      });
+    }
+  };
+
+  // ── GROUND CRACK EFFECT ──
+  window.__chugGroundCrack = function(x, y){
+    for(let i = 0; i < 25; i++){
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 10 + Math.random() * 40;
+      particles.push({
+        x: x + Math.cos(angle) * dist * 0.3,
+        y: y - 2,
+        vx: Math.cos(angle) * (2 + Math.random() * 4),
+        vy: -(1 + Math.random() * 3),
+        life: 0.4 + Math.random() * 0.3,
+        col: 'rgba(160,140,110,' + (0.2 + Math.random() * 0.2) + ')',
+        w: Math.random() * 8 + 4,
+        tp: 's'
+      });
+    }
+  };
+
+  // ── SCREEN PULSE ON RAGE ──
+  window.__chugRagePulse = function(){
+    const el = document.getElementById('game') || document.body;
+    el.style.transition = 'filter 0.05s';
+    el.style.filter = 'brightness(1.4) saturate(1.6)';
+    setTimeout(() => { el.style.filter = 'brightness(0.6) saturate(0.8)'; }, 60);
+    setTimeout(() => { el.style.filter = 'brightness(1.2) saturate(1.3)'; }, 120);
+    setTimeout(() => { el.style.filter = 'brightness(1) saturate(1)'; }, 180);
+  };
+
+  // ── PATCH FIGHTER FOR NEW MOVES ──
+  const _origAttack = Fighter.prototype.attack;
+  const _origUpdate = Fighter.prototype.update;
+  const _origDraw = Fighter.prototype.draw;
+
+  Fighter.prototype.attack = function(type){
+    if(type === 'u' || type === 'sw'){
+      this.atkType = type;
+      this.state = 'atk';
+      this.combo++;
+      if(this.combo > 4) this.combo = 1;
+      return;
+    }
+    return _origAttack.call(this, type);
+  };
+
+  Fighter.prototype.update = function(en){
+    const ret = _origUpdate.call(this, en);
+    if(this.isP && this.rageActive && this.__shadowTick && this.__shadowTick % 30 === 0 && this.hp > 0){
+      for(let i = 0; i < 3; i++){
+        particles.push({
+          x: this.x + this.w/2 + (Math.random()-0.5)*this.w,
+          y: this.y - this.h * (0.2 + Math.random() * 0.6),
+          vx: (Math.random()-0.5) * 1.2,
+          vy: -(0.5 + Math.random() * 0.8),
+          life: 0.3 + Math.random() * 0.2,
+          col: this.rageTier === 2 ? 'rgba(255,60,60,0.25)' : 'rgba(100,220,255,0.25)',
+          w: Math.random() * 6 + 3,
+          tp: 'f'
+        });
+      }
+    }
+    if(this.isP && K.rage && this.rage >= 100 && !this.rageActive){
+      setTimeout(window.__chugRagePulse, 10);
+    }
+    return ret;
+  };
+
+  Fighter.prototype.draw = function(c, ghost){
+    if(this.state === 'atk' && this.atkType === 'u' && !ghost){
+      c.save();
+      const prog = this.hitF > 0 ? Math.max(0, Math.min(1, (this.hitF - this.atkT) / this.hitF)) : 0;
+      const windup = this.atkT > this.hitF + 2;
+      const sqX = windup ? 0.9 + prog * 0.1 : 1.2 - prog * 0.2;
+      const sqY = windup ? 1.1 - prog * 0.1 : 0.8 + prog * 0.2;
+      c.translate(this.x + this.w/2, this.y);
+      if(this.rotation) c.rotate(this.rotation);
+      c.scale(this.dir * sqX * this.scale, sqY * this.scale);
+      const bob = Math.sin(Date.now()/100)*2;
+      const bodyCol = this.hitT > 0 ? '#ffffff' : (this.raging ? (this.rageTier===2 ? '#140404' : '#060913') : '#000');
+      const clothCol = this.hitT > 0 ? '#ffffff' : (this.raging ? (this.rageTier===2 ? '#320808' : '#0d1730') : '#000');
+      const hR = 13, headY = -this.baseH - 5 + bob;
+      const shoulderY = -this.baseH + 15 + bob;
+      const waistY = -this.baseH * 0.45 + bob;
+      const rise = windup ? 0 : prog * 15;
+      c.fillStyle = bodyCol;
+      c.beginPath(); c.arc(2, headY - rise, hR, 0, Math.PI*2); c.fill();
+      c.fillStyle = clothCol;
+      c.fillRect(-20 + rise*0.3, shoulderY - rise, 40 - rise*0.6, -shoulderY + waistY + rise*0.5);
+      const fistX = windup ? -10 : 15 + prog * 25;
+      const fistY = windup ? waistY + 10 : (headY - 20) - prog * 35 - rise;
+      c.fillStyle = bodyCol;
+      c.beginPath(); c.arc(this.dir * fistX, fistY, 8, 0, Math.PI*2); c.fill();
+      if(!windup && prog < 0.8){
+        c.globalAlpha = 0.3 * (1 - prog);
+        c.fillStyle = '#ffd700';
+        c.beginPath(); c.arc(this.dir * (fistX - 8), fistY - 12, 6, 0, Math.PI*2); c.fill();
+        c.globalAlpha = 1;
+      }
+      c.restore();
+      return;
+    }
+    if(this.state === 'atk' && this.atkType === 'sw' && !ghost){
+      c.save();
+      const prog = this.hitF > 0 ? Math.max(0, Math.min(1, (this.hitF - this.atkT) / this.hitF)) : 0;
+      const windup = this.atkT > this.hitF + 2;
+      c.translate(this.x + this.w/2, this.y);
+      if(this.rotation) c.rotate(this.rotation);
+      c.scale(this.dir * this.scale, this.scale);
+      const bob = Math.sin(Date.now()/100)*2;
+      const bodyCol = this.hitT > 0 ? '#ffffff' : '#000';
+      const headY = -this.baseH - 5 + bob;
+      const shoulderY = -this.baseH + 15 + bob;
+      const waistY = -this.baseH * 0.45 + bob;
+      c.fillStyle = bodyCol;
+      c.beginPath(); c.arc(2, headY, 13, 0, Math.PI*2); c.fill();
+      const lean = windup ? -12 : prog * 20;
+      c.fillStyle = '#222';
+      c.fillRect(-15 + lean, shoulderY, 30, -shoulderY + waistY);
+      const legExt = windup ? 10 : 20 + prog * 35;
+      const legY = windup ? -5 : 5 + prog * 15;
+      c.fillStyle = bodyCol;
+      c.save(); c.translate(this.dir * (10 + legExt * 0.5), legY);
+      c.fillRect(-4, -4, 8, 12); c.restore();
+      if(!windup && prog < 0.9){
+        c.globalAlpha = 0.25 * (1 - prog * 0.6);
+        c.strokeStyle = '#c0e0ff'; c.lineWidth = 3;
+        c.beginPath(); c.arc(this.dir * 12, 5, 20 + prog * 25, -0.3, 0.8); c.stroke();
+        c.globalAlpha = 1;
+      }
+      c.restore();
+      return;
+    }
+    return _origDraw.call(this, c, ghost);
+  };
+
+  // ── PATCH HIT WITH ENHANCED SPARKS ──
+  const _origTakeHit = Fighter.prototype.takeHit;
+  Fighter.prototype.takeHit = function(dmg, fd, heavy){
+    const ret = _origTakeHit.call(this, dmg, fd, heavy);
+    if(dmg > 0 && this.hp > 0){
+      window.__chugHitSparks(this.x + this.w/2, this.y - this.h * 0.4,
+        fd > 0 ? 1 : -1,
+        this.isP ? (window.weapon || 'none') : (this.eWeapon || 'none'),
+        heavy, dmg > (this.maxHp * 0.15));
+      if(heavy) window.__chugAirDistortion(this.x + this.w/2, this.y - this.h*0.3, fd, 25);
+    }
+    return ret;
+  };
+
+  // ── SUPER COMBO FINISHER ──
+  window.__chugFinisher = function(fighter, en, comboN){
+    if(comboN < 5 || fighter.stamina < 25) return false;
+    fighter.stamina = Math.max(0, fighter.stamina - 25);
+    const bonusDmg = Math.floor(fighter.dmg * 2.5);
+    en.takeHit(bonusDmg, fighter.dir, true);
+    screenShake = 20; hitStop = 12; doFlash();
+    for(let i = 0; i < 40; i++){
+      const a = (i/40) * Math.PI * 2;
+      particles.push({
+        x: en.x + en.w/2 + Math.cos(a) * 6, y: en.y - en.h/2 + Math.sin(a) * 6,
+        vx: Math.cos(a) * (5 + Math.random() * 5), vy: Math.sin(a) * (5 + Math.random() * 5),
+        life: 0.4 + Math.random() * 0.3,
+        col: ['#ffd700','#ff6d00','#ff1744','#ffea00'][Math.floor(Math.random() * 4)],
+        w: Math.random() * 10 + 5, tp: 's'
+      });
+    }
+    floatingTexts.push({x: en.x + en.w/2, y: en.y - en.h - 20, t: 'FINISHER!',
+      life: 1.2, vy: -2.5, col: '#ffd700', size: 22});
+    window.__chugGroundCrack(en.x + en.w/2, GND);
+    window.__chugAirDistortion(en.x + en.w/2, en.y - en.h*0.3, fighter.dir, 45);
+    beep(50, 'sawtooth', 0.3, 0.2);
+    setTimeout(() => beep(100, 'square', 0.2, 0.15), 80);
+    setTimeout(() => beep(180, 'triangle', 0.15, 0.1), 160);
+    return true;
+  };
+
+  // ── PATCH UPDATE FOR FINISHER ──
+  const _origUpdate2 = Fighter.prototype.update;
+  Fighter.prototype.update = function(en){
+    const ret = _origUpdate2.call(this, en);
+    if(this.isP && this.atkT <= 0 && this.state !== 'atk' && window.comboCount >= 5){
+      if(K.a && K.k && this.y >= GND - 1){
+        window.__chugFinisher(this, en, window.comboCount);
+        window.comboCount = 0; K.a = 0; K.k = 0;
+      }
+    }
+    return ret;
+  };
+
+  // ── ADD NEW INPUT MAPPINGS ──
+  // Forward+Punch (running toward enemy + press a) = Uppercut
+  // We inject into the existing player input handler
+  window.__chugPatchInput = function(fighter, en){
+    if(!fighter || !en || fighter.hp <= 0 || en.hp <= 0) return;
+    // Uppercut: holding forward toward enemy + K.a while grounded
+    const towardEnemy = (fighter.dir === 1 && K.r) || (fighter.dir === -1 && K.l);
+    if(towardEnemy && K.a && fighter.atkT <= 0 && fighter.y >= GND-1){
+      if(window.__chugUppercut(fighter, en, fighter.dir)){
+        K.a = 0;
+      }
+    }
+    // Sweep: pressing K.g (grab) when far = sweep kick
+    if(K.g && fighter.atkT <= 0 && fighter.y >= GND-1 && !(Math.abs((fighter.x+fighter.w/2)-(en.x+en.w/2)) < 115*Math.max(fighter.scale,en.scale) && en.y >= GND-1 && en.hitT <= 0)){
+      if(window.__chugSweep(fighter, en, fighter.dir)){
+        K.g = 0;
+      }
+    }
+  };
+
+  // Hook into fight loop via a small interval (lazy but safe)
+  let _inputHook = setInterval(function(){
+    const fight = window.gameState === 'fight';
+    if(!fight) return;
+    const p = window.player;
+    const e = window.enemy;
+    if(p && e && p.hp > 0 && e.hp > 0 && typeof window.__chugPatchInput === 'function'){
+      window.__chugPatchInput(p, e);
+    }
+  }, 50);
+
+})();
 
 (function(){
   window.addEventListener('error', function(ev){
