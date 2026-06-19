@@ -6342,6 +6342,16 @@ window.K={l:0,r:0,j:0,a:0,k:0,g:0,t:0,range:0,rage:0}; const K=window.K;
 // In addition to the Space bar, allow the Enter key to advance story dialogue.
 // This makes it more intuitive for users on desktop keyboards.
 window.addEventListener('keydown',e=>{
+  // Support keyboard accessibility for role="button" elements
+  if(e.code==='Space' || e.key==='Enter'){
+    const active = document.activeElement;
+    if(active && active.getAttribute('role') === 'button'){
+      e.preventDefault();
+      active.click();
+      return;
+    }
+  }
+
   // Advance dialogue when the Space bar or Enter key is pressed during story scenes
   if((e.code==='Space' || e.key==='Enter') && gameState==='story'){
     e.preventDefault();
@@ -12401,6 +12411,10 @@ function buildWorldMap(){
       row.className = 'wm-world-row' +
         (isActive ? ' wm-world-active' : '') +
         (isLocked ? ' wm-world-locked' : '');
+      row.setAttribute('role', 'button');
+      row.setAttribute('tabindex', '0');
+      const worldName = world.name.replace(/WORLD \w+ — /,'');
+      row.setAttribute('aria-label', `Select ${worldName} (World ${ROMANS[id]||id})${isLocked ? ' - Locked' : ''}`);
       row.innerHTML = `<div class="wm-world-icon">${world.icon}</div>
         <div class="wm-world-info">
           <div class="wm-world-name">${world.name.replace(/WORLD \w+ — /,'')}</div>
