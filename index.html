@@ -182,7 +182,7 @@
 
 
 <!-- ══ CINEMATIC TITLE SCREEN ══ -->
-<div id="intro-screen" class="screen active-screen" onclick="introHandleClick(event)">
+<div id="intro-screen" class="screen active-screen" onclick="introHandleClick(event)" role="button" tabindex="0" aria-label="Start game">
   <canvas id="introBgCanvas"></canvas>
   <div class="intro-title-wrap">
     <div class="intro-eyebrow">A SHADOW OF FAME STORY</div>
@@ -247,7 +247,7 @@
     <div class="chapter-divider"></div>
 
     <!-- ACT I -->
-    <div class="chapter-card" id="act1-card" onclick="openAct(1)">
+    <div class="chapter-card" id="act1-card" onclick="openAct(1)" role="button" tabindex="0">
       <div class="chap-num">I</div>
       <div class="chap-info">
         <div class="chap-title">ACT I — SHADOW OF FAME</div>
@@ -270,7 +270,7 @@
     </div>
 
     <!-- ACT II -->
-    <div class="chapter-card locked" id="act2-card" onclick="openAct(2)">
+    <div class="chapter-card locked" id="act2-card" onclick="openAct(2)" role="button" tabindex="0">
       <div class="chap-num dim" id="act2-num">II</div>
       <div class="chap-info">
         <div class="chap-title" id="act2-title">ACT II — AFTERIMAGE</div>
@@ -295,7 +295,7 @@
     <div class="chapter-divider"></div>
 
     <!-- Chapter I -->
-    <div class="chapter-card" id="chap1-card" onclick="startChapter(1)">
+    <div class="chapter-card" id="chap1-card" onclick="startChapter(1)" role="button" tabindex="0">
       <div class="chap-num" style="font-size:clamp(20px,4vw,30px);">CH.I</div>
       <div class="chap-info">
         <div class="chap-title">THE FALL</div>
@@ -312,7 +312,7 @@
     </div>
 
     <!-- Chapter II -->
-    <div class="chapter-card locked" id="chap2-card" onclick="startChapter(2)">
+    <div class="chapter-card locked" id="chap2-card" onclick="startChapter(2)" role="button" tabindex="0">
       <div class="chap-num dim" id="chap2-num" style="font-size:clamp(20px,4vw,30px);">CH.II</div>
       <div class="chap-info">
         <div class="chap-title" id="chap2-title">VANISHED</div>
@@ -340,7 +340,7 @@
     <div class="chapter-divider"></div>
 
     <!-- Chapter III -->
-    <div class="chapter-card locked" id="chap3-card" onclick="startChapter(3)">
+    <div class="chapter-card locked" id="chap3-card" onclick="startChapter(3)" role="button" tabindex="0">
       <div class="chap-num dim" id="chap3-num" style="font-size:clamp(20px,4vw,30px);">CH.III</div>
       <div class="chap-info">
         <div class="chap-title" id="chap3-title">AFTERIMAGE</div>
@@ -372,7 +372,7 @@
 
     <!-- MISSION BOARD -->
     <div class="camp-section" id="campMissionSection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campMissionBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" onclick="toggleCampSection('campMissionBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')" role="button" tabindex="0">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">📋</span></div>
           <div class="camp-section-text">
@@ -388,7 +388,7 @@
 
     <!-- STRATEGY -->
     <div class="camp-section" id="campStrategySection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campStrategyBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" onclick="toggleCampSection('campStrategyBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')" role="button" tabindex="0">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">🗺</span></div>
           <div class="camp-section-text">
@@ -407,7 +407,7 @@
 
     <!-- ROSTER OVERVIEW -->
     <div class="camp-section" id="campRosterSection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campRosterBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" onclick="toggleCampSection('campRosterBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')" role="button" tabindex="0">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">👥</span></div>
           <div class="camp-section-text">
@@ -423,7 +423,7 @@
 
     <!-- RECOVERY AREA -->
     <div class="camp-section" id="campRecoverySection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campRecoveryBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" onclick="toggleCampSection('campRecoveryBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')" role="button" tabindex="0">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">💚</span></div>
           <div class="camp-section-text">
@@ -443,7 +443,7 @@
 
     <!-- TRAINING — gateway -->
     <div class="camp-section camp-section-gateway" id="campTrainingSection">
-      <div class="camp-section-head" onclick="openTraining()">
+      <div class="camp-section-head" onclick="openTraining()" role="button" tabindex="0">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">🔥</span></div>
           <div class="camp-section-text">
@@ -457,7 +457,7 @@
 
     <!-- ARMORY — gateway -->
     <div class="camp-section camp-section-gateway" id="campArmorySection">
-      <div class="camp-section-head" onclick="closeCamp();openShop();">
+      <div class="camp-section-head" onclick="closeCamp();openShop();" role="button" tabindex="0">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">⚔</span></div>
           <div class="camp-section-text">
@@ -471,7 +471,7 @@
 
     <!-- CODEX — gateway -->
     <div class="camp-section camp-section-gateway" id="campCodexSection">
-      <div class="camp-section-head" onclick="openCodex()">
+      <div class="camp-section-head" onclick="openCodex()" role="button" tabindex="0">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">📖</span></div>
           <div class="camp-section-text">
@@ -488,7 +488,7 @@
 
     <!-- CAMP EVENTS -->
     <div class="camp-section" id="campEventsSection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campEventsBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" onclick="toggleCampSection('campEventsBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')" role="button" tabindex="0">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">💬</span></div>
           <div class="camp-section-text">
@@ -603,7 +603,7 @@
         <div class="squad-section-pill" id="squadMainStatusPill">ACTIVE</div>
       </div>
 
-      <div class="squad-slot main-slot" id="squadMainSlot" onclick="openSquadPicker('main')">
+      <div class="squad-slot main-slot" id="squadMainSlot" onclick="openSquadPicker('main')" role="button" tabindex="0">
         <div class="squad-slot-mark">01</div>
 
         <div class="squad-portrait-wrap">
@@ -641,7 +641,7 @@
       </div>
 
       <div class="squad-support-stack">
-        <div class="squad-slot support-slot" id="squadSupport0" onclick="openSquadPicker('support',0)">
+        <div class="squad-slot support-slot" id="squadSupport0" onclick="openSquadPicker('support',0)" role="button" tabindex="0">
           <div class="squad-slot-mark">I</div>
 
           <div class="squad-portrait-wrap">
@@ -665,7 +665,7 @@
           </div>
         </div>
 
-        <div class="squad-slot support-slot" id="squadSupport1" onclick="openSquadPicker('support',1)">
+        <div class="squad-slot support-slot" id="squadSupport1" onclick="openSquadPicker('support',1)" role="button" tabindex="0">
           <div class="squad-slot-mark">II</div>
 
           <div class="squad-portrait-wrap">
@@ -721,67 +721,67 @@
   <div class="shop-section">
     <div class="shop-section-title">Weapons</div>
     <div class="shop-grid">
-      <div class="shop-item" id="buy-knuckle" onclick="buyItem('weapon','knuckle',100,'coin')">
+      <div class="shop-item" id="buy-knuckle" onclick="buyItem('weapon','knuckle',100,'coin')" role="button" tabindex="0">
         <div class="s-icon">🥊</div><div class="s-name">Iron Knuckles</div>
         <div class="s-desc">+6 DMG. Fast pressure. Gold plated.</div><div class="s-price">🪙 100</div>
       </div>
-      <div class="shop-item" id="buy-dagger" onclick="buyItem('weapon','dagger',250,'coin')">
+      <div class="shop-item" id="buy-dagger" onclick="buyItem('weapon','dagger',250,'coin')" role="button" tabindex="0">
         <div class="s-icon">🗡️</div><div class="s-name">Void Dagger</div>
         <div class="s-desc">+8 DMG. +Spd. Pierces armor.</div><div class="s-price">🪙 250</div>
       </div>
-      <div class="shop-item" id="buy-katana" onclick="buyItem('weapon','katana',420,'coin')">
+      <div class="shop-item" id="buy-katana" onclick="buyItem('weapon','katana',420,'coin')" role="button" tabindex="0">
         <div class="s-icon">⚔</div><div class="s-name">Shadow Katana</div>
         <div class="s-desc">+12 DMG. Refined iai blade. Fast draw, deep arc.</div><div class="s-price">🪙 420</div>
       </div>
-      <div class="shop-item" id="buy-staff" onclick="buyItem('weapon','staff',360,'coin')">
+      <div class="shop-item" id="buy-staff" onclick="buyItem('weapon','staff',360,'coin')" role="button" tabindex="0">
         <div class="s-icon">🪄</div><div class="s-name">Wukong Staff</div>
         <div class="s-desc">+7 DMG. Wide sweep reach.</div><div class="s-price">🪙 360</div>
       </div>
-      <div class="shop-item" id="buy-scythe" onclick="buyItem('weapon','scythe',2650,'coin')">
+      <div class="shop-item" id="buy-scythe" onclick="buyItem('weapon','scythe',2650,'coin')" role="button" tabindex="0">
         <div class="s-icon">☽</div><div class="s-name">Shadow Scythe</div>
         <div class="s-desc">+18 DMG. Shoulder-held void scythe with dedicated sweeping forms.</div><div class="s-price">🪙 2650</div>
       </div>
-      <div class="shop-item" id="buy-claws" onclick="buyItem('weapon','claws',380,'coin')">
+      <div class="shop-item" id="buy-claws" onclick="buyItem('weapon','claws',380,'coin')" role="button" tabindex="0">
         <div class="s-icon">🔱</div><div class="s-name">Void Claws</div>
         <div class="s-desc">+8 DMG. +Speed. Ripping tri-slash gauntlets.</div><div class="s-price">🪙 380</div>
       </div>
-      <div class="shop-item" id="buy-lynx_claws" onclick="buyItem('weapon','lynx_claws',3200,'coin')">
+      <div class="shop-item" id="buy-lynx_claws" onclick="buyItem('weapon','lynx_claws',3200,'coin')" role="button" tabindex="0">
         <div class="s-icon">🐾</div><div class="s-name">Lynx Claws</div>
         <div class="s-desc">+14 DMG. Long-range assassin claws with delayed time-bomb finish.</div><div class="s-price">🪙 3200</div>
       </div>
-      <div class="shop-item" id="buy-blood_reaper" onclick="buyItem('weapon','blood_reaper',3450,'coin')">
+      <div class="shop-item" id="buy-blood_reaper" onclick="buyItem('weapon','blood_reaper',3450,'coin')" role="button" tabindex="0">
         <div class="s-icon">🩸</div><div class="s-name">Blood Reaper</div>
         <div class="s-desc">+19 DMG. SF2 Blood Reaper: kusarigama with thrown chain ring and bleeding.</div><div class="s-price">🪙 3450</div>
       </div>
-      <div class="shop-item" id="buy-composite_sword" onclick="buyItem('weapon','composite_sword',3900,'coin')">
+      <div class="shop-item" id="buy-composite_sword" onclick="buyItem('weapon','composite_sword',3900,'coin')" role="button" tabindex="0">
         <div class="s-icon">⚔</div><div class="s-name">Composite Sword</div>
         <div class="s-desc">+22 DMG. SF2 Composite Sword: 9-segment whip blade with Bleeding.</div><div class="s-price">🪙 3900</div>
       </div>
-      <div class="shop-item" id="buy-ak47" onclick="buyItem('weapon','ak47',4500,'coin')">
+      <div class="shop-item" id="buy-ak47" onclick="buyItem('weapon','ak47',4500,'coin')" role="button" tabindex="0">
         <div class="s-icon">🔫</div><div class="s-name">AK-47</div>
         <div class="s-desc">+24 DMG. Dedicated rifle stance with ranged burst fire.</div><div class="s-price">🪙 4500</div>
       </div>
-      <div class="shop-item" id="buy-hammer" onclick="buyItem('weapon','hammer',2400,'coin')">
+      <div class="shop-item" id="buy-hammer" onclick="buyItem('weapon','hammer',2400,'coin')" role="button" tabindex="0">
         <div class="s-icon">🔨</div><div class="s-name">Doom Hammer</div>
         <div class="s-desc">+13 DMG. Ground-shatter impact.</div><div class="s-price">🪙 480</div>
       </div>
-          <div class="shop-item" id="buy-sword" onclick="buyItem('weapon','sword',80,'coin')">
+          <div class="shop-item" id="buy-sword" onclick="buyItem('weapon','sword',80,'coin')" role="button" tabindex="0">
         <div class="s-icon">⚔</div><div class="s-name">Iron Sword</div>
         <div class="s-desc">+8 DMG. Balanced. Reliable.</div><div class="s-price coin">🪙 80</div>
       </div>
-      <div class="shop-item" id="buy-nunchaku" onclick="buyItem('weapon','nunchaku',240,'coin')">
+      <div class="shop-item" id="buy-nunchaku" onclick="buyItem('weapon','nunchaku',240,'coin')" role="button" tabindex="0">
         <div class="s-icon">🔗</div><div class="s-name">Void Nunchaku</div>
         <div class="s-desc">+7 DMG. Fastest. Dual hit.</div><div class="s-price coin">🪙 240</div>
       </div>
-      <div class="shop-item" id="buy-knives" onclick="buyItem('weapon','knives',1450,'coin')">
+      <div class="shop-item" id="buy-knives" onclick="buyItem('weapon','knives',1450,'coin')" role="button" tabindex="0">
         <div class="s-icon">🪝</div><div class="s-name">Twin Kamas</div>
         <div class="s-desc">+15 DMG. +2.2 SPD. Four dedicated crescent forms.</div><div class="s-price coin">🪙 1450</div>
       </div>
-      <div class="shop-item" id="buy-spear" onclick="buyItem('weapon','spear',1600,'coin')">
+      <div class="shop-item" id="buy-spear" onclick="buyItem('weapon','spear',1600,'coin')" role="button" tabindex="0">
         <div class="s-icon">🔱</div><div class="s-name">Dragon Spear</div>
         <div class="s-desc">+16 DMG. Precision thrusts. Four dedicated forms.</div><div class="s-price coin">🪙 1600</div>
       </div>
-      <div class="shop-item" id="buy-whip" onclick="buyItem('weapon','whip',8,'gem')">
+      <div class="shop-item" id="buy-whip" onclick="buyItem('weapon','whip',8,'gem')" role="button" tabindex="0">
         <div class="s-icon">〰️</div><div class="s-name">Void Whip</div>
         <div class="s-desc">+9 DMG. Range. Slows foe.</div><div class="s-price gem">💎 8</div>
       </div>
@@ -791,15 +791,15 @@
   <div class="shop-section">
     <div class="shop-section-title">Armor</div>
     <div class="shop-grid">
-      <div class="shop-item" id="buy-lightarmor" onclick="buyItem('armor','lightarmor',180,'coin')">
+      <div class="shop-item" id="buy-lightarmor" onclick="buyItem('armor','lightarmor',180,'coin')" role="button" tabindex="0">
         <div class="s-icon">🥋</div><div class="s-name">Shadow Gi</div>
         <div class="s-desc">+3 DEF. +25 HP. Light.</div><div class="s-price">🪙 180</div>
       </div>
-      <div class="shop-item" id="buy-heavyarmor" onclick="buyItem('armor','heavyarmor',420,'coin')">
+      <div class="shop-item" id="buy-heavyarmor" onclick="buyItem('armor','heavyarmor',420,'coin')" role="button" tabindex="0">
         <div class="s-icon">🛡️</div><div class="s-name">Titan Armor</div>
         <div class="s-desc">+6 DEF. +50 HP. Heavy.</div><div class="s-price">🪙 420</div>
       </div>
-      <div class="shop-item" id="buy-voidarmor" onclick="buyItem('armor','voidarmor',5,'gem')">
+      <div class="shop-item" id="buy-voidarmor" onclick="buyItem('armor','voidarmor',5,'gem')" role="button" tabindex="0">
         <div class="s-icon">🌑</div><div class="s-name">Void Shroud</div>
         <div class="s-desc">+9 DEF. +70 HP. Absorbs 10%.</div><div class="s-price gem">💎 5</div>
       </div>
@@ -809,31 +809,31 @@
   <div class="shop-section">
     <div class="shop-section-title">Upgrades</div>
     <div class="shop-grid">
-      <div class="shop-item" id="buy-rage2" onclick="buyItem('upgrade','rage2',700,'coin')">
+      <div class="shop-item" id="buy-rage2" onclick="buyItem('upgrade','rage2',700,'coin')" role="button" tabindex="0">
         <div class="s-icon">🔥</div><div class="s-name">Rage Mode II</div>
         <div class="s-desc">Bigger aura. More DMG. Less taken.</div><div class="s-price">🪙 700</div>
       </div>
-      <div class="shop-item" id="buy-strength" onclick="buyItem('upgrade','strength',400,'coin')">
+      <div class="shop-item" id="buy-strength" onclick="buyItem('upgrade','strength',400,'coin')" role="button" tabindex="0">
         <div class="s-icon">💪</div><div class="s-name">Strength I</div>
         <div class="s-desc">+5 base DMG on all attacks.</div><div class="s-price">🪙 400</div>
       </div>
-      <div class="shop-item" id="buy-strength2" onclick="buyItem('upgrade','strength2',800,'coin')">
+      <div class="shop-item" id="buy-strength2" onclick="buyItem('upgrade','strength2',800,'coin')" role="button" tabindex="0">
         <div class="s-icon">⚡</div><div class="s-name">Strength II</div>
         <div class="s-desc">+10 base DMG. Requires Str I.</div><div class="s-price">🪙 800</div>
       </div>
-      <div class="shop-item" id="buy-speed" onclick="buyItem('upgrade','speed',350,'coin')">
+      <div class="shop-item" id="buy-speed" onclick="buyItem('upgrade','speed',350,'coin')" role="button" tabindex="0">
         <div class="s-icon">💨</div><div class="s-name">Speed I</div>
         <div class="s-desc">+2 movement & attack speed.</div><div class="s-price">🪙 350</div>
       </div>
-      <div class="shop-item" id="buy-speed2" onclick="buyItem('upgrade','speed2',700,'coin')">
+      <div class="shop-item" id="buy-speed2" onclick="buyItem('upgrade','speed2',700,'coin')" role="button" tabindex="0">
         <div class="s-icon">🌪️</div><div class="s-name">Speed II</div>
         <div class="s-desc">+4 spd. Faster combos. Req Speed I.</div><div class="s-price">🪙 700</div>
       </div>
-      <div class="shop-item" id="buy-endurance" onclick="buyItem('upgrade','endurance',450,'coin')">
+      <div class="shop-item" id="buy-endurance" onclick="buyItem('upgrade','endurance',450,'coin')" role="button" tabindex="0">
         <div class="s-icon">❤️</div><div class="s-name">Endurance I</div>
         <div class="s-desc">+30 max HP. Regen on kill.</div><div class="s-price">🪙 450</div>
       </div>
-      <div class="shop-item" id="buy-endurance2" onclick="buyItem('upgrade','endurance2',900,'coin')">
+      <div class="shop-item" id="buy-endurance2" onclick="buyItem('upgrade','endurance2',900,'coin')" role="button" tabindex="0">
         <div class="s-icon">💎</div><div class="s-name">Endurance II</div>
         <div class="s-desc">+60 HP. 15% damage reduction.</div><div class="s-price">🪙 900</div>
       </div>
@@ -875,7 +875,7 @@
     <div class="dojo-rod dojo-rod-top"></div>
     <div class="dojo-body">
       <div class="dojo-portrait" id="dojoPortrait">🥋</div>
-      <div class="dojo-text-wrap" onclick="advance()">
+      <div class="dojo-text-wrap" onclick="advance()" role="button" tabindex="0" aria-label="Advance dialogue">
         <div class="dojo-speaker" id="dojoSpeaker">GUIDE</div>
         <div class="dojo-text" id="dojoText">…</div>
       </div>
@@ -1169,7 +1169,7 @@
   <!-- Center: top bar + chapter panel -->
   <div id="wm-center">
     <div id="wm-top-bar">
-      <div class="wm-hamburger" onclick="toggleWmPanel()" title="Worlds">☰</div>
+      <div class="wm-hamburger" onclick="toggleWmPanel()" title="Worlds" role="button" tabindex="0" aria-label="Open worlds menu">☰</div>
       <div>
         <div class="wm-top-title" id="wm-active-title">WORLD MAP</div>
         <div class="wm-top-sub" id="wm-active-sub">SELECT YOUR WORLD · ENTER THE SHADOW</div>
@@ -1195,11 +1195,11 @@
     <div class="lu-divider"></div>
     <div class="lu-pts-remaining" id="lu-pts-remaining">3 STAT POINTS TO ALLOCATE</div>
     <div class="lu-stats">
-      <div class="lu-stat"><div class="lu-stat-name">HP</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('hp',-1)">−</button><div class="lu-stat-val" id="lu-hp">0</div><button class="lu-stat-btn" onclick="allocStat('hp',1)">+</button></div></div>
-      <div class="lu-stat"><div class="lu-stat-name">ATK</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('atk',-1)">−</button><div class="lu-stat-val" id="lu-atk">0</div><button class="lu-stat-btn" onclick="allocStat('atk',1)">+</button></div></div>
-      <div class="lu-stat"><div class="lu-stat-name">DEF</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('def',-1)">−</button><div class="lu-stat-val" id="lu-def">0</div><button class="lu-stat-btn" onclick="allocStat('def',1)">+</button></div></div>
-      <div class="lu-stat"><div class="lu-stat-name">SPD</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('spd',-1)">−</button><div class="lu-stat-val" id="lu-spd">0</div><button class="lu-stat-btn" onclick="allocStat('spd',1)">+</button></div></div>
-      <div class="lu-stat"><div class="lu-stat-name">CRIT%</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('crit',-1)">−</button><div class="lu-stat-val" id="lu-crit">0</div><button class="lu-stat-btn" onclick="allocStat('crit',1)">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">HP</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('hp',-1)" aria-label="Decrease HP">−</button><div class="lu-stat-val" id="lu-hp">0</div><button class="lu-stat-btn" onclick="allocStat('hp',1)" aria-label="Increase HP">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">ATK</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('atk',-1)" aria-label="Decrease ATK">−</button><div class="lu-stat-val" id="lu-atk">0</div><button class="lu-stat-btn" onclick="allocStat('atk',1)" aria-label="Increase ATK">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">DEF</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('def',-1)" aria-label="Decrease DEF">−</button><div class="lu-stat-val" id="lu-def">0</div><button class="lu-stat-btn" onclick="allocStat('def',1)" aria-label="Increase DEF">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">SPD</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('spd',-1)" aria-label="Decrease SPD">−</button><div class="lu-stat-val" id="lu-spd">0</div><button class="lu-stat-btn" onclick="allocStat('spd',1)" aria-label="Increase SPD">+</button></div></div>
+      <div class="lu-stat"><div class="lu-stat-name">CRIT%</div><div class="lu-stat-btns"><button class="lu-stat-btn" onclick="allocStat('crit',-1)" aria-label="Decrease CRIT">−</button><div class="lu-stat-val" id="lu-crit">0</div><button class="lu-stat-btn" onclick="allocStat('crit',1)" aria-label="Increase CRIT">+</button></div></div>
     </div>
     <div class="lu-remaining" id="lu-remaining"></div>
     <div class="lu-unlock-msg" id="lu-unlock-msg"></div>
@@ -1270,9 +1270,9 @@
           <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-hp" style="width:0%"></div></div>
         </div>
         <div class="lv-stat-controls">
-          <button class="lv-stat-btn2" onclick="allocStatMenu('hp',-1)">−</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('hp',-1)" aria-label="Decrease HP">−</button>
           <div class="lv-stat-current" id="ms-hp">0</div>
-          <button class="lv-stat-btn2" onclick="allocStatMenu('hp',1)">+</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('hp',1)" aria-label="Increase HP">+</button>
         </div>
       </div>
       <div class="lv-stat-row" data-stat="atk">
@@ -1282,9 +1282,9 @@
           <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-atk" style="width:0%"></div></div>
         </div>
         <div class="lv-stat-controls">
-          <button class="lv-stat-btn2" onclick="allocStatMenu('atk',-1)">−</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('atk',-1)" aria-label="Decrease ATK">−</button>
           <div class="lv-stat-current" id="ms-atk">0</div>
-          <button class="lv-stat-btn2" onclick="allocStatMenu('atk',1)">+</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('atk',1)" aria-label="Increase ATK">+</button>
         </div>
       </div>
       <div class="lv-stat-row" data-stat="def">
@@ -1294,9 +1294,9 @@
           <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-def" style="width:0%"></div></div>
         </div>
         <div class="lv-stat-controls">
-          <button class="lv-stat-btn2" onclick="allocStatMenu('def',-1)">−</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('def',-1)" aria-label="Decrease DEF">−</button>
           <div class="lv-stat-current" id="ms-def">0</div>
-          <button class="lv-stat-btn2" onclick="allocStatMenu('def',1)">+</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('def',1)" aria-label="Increase DEF">+</button>
         </div>
       </div>
       <div class="lv-stat-row" data-stat="spd">
@@ -1306,9 +1306,9 @@
           <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-spd" style="width:0%"></div></div>
         </div>
         <div class="lv-stat-controls">
-          <button class="lv-stat-btn2" onclick="allocStatMenu('spd',-1)">−</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('spd',-1)" aria-label="Decrease SPD">−</button>
           <div class="lv-stat-current" id="ms-spd">0</div>
-          <button class="lv-stat-btn2" onclick="allocStatMenu('spd',1)">+</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('spd',1)" aria-label="Increase SPD">+</button>
         </div>
       </div>
       <div class="lv-stat-row" data-stat="crit">
@@ -1318,9 +1318,9 @@
           <div class="lv-stat-bar-track"><div class="lv-stat-bar-fill" id="bar-crit" style="width:0%"></div></div>
         </div>
         <div class="lv-stat-controls">
-          <button class="lv-stat-btn2" onclick="allocStatMenu('crit',-1)">−</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('crit',-1)" aria-label="Decrease CRIT">−</button>
           <div class="lv-stat-current" id="ms-crit">0</div>
-          <button class="lv-stat-btn2" onclick="allocStatMenu('crit',1)">+</button>
+          <button class="lv-stat-btn2" onclick="allocStatMenu('crit',1)" aria-label="Increase CRIT">+</button>
         </div>
       </div>
     </div>
