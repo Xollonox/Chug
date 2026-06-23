@@ -625,6 +625,10 @@ body.rage-special #game {
   color: var(--white); letter-spacing: 5px;
   transform: translateX(6px);
 }
+[role="button"]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
 .menu-btn:hover::before {
   background: var(--gold); box-shadow: 0 0 12px var(--gold-glow), 2px 0 20px var(--gold-dim);
 }

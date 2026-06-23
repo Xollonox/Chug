@@ -6348,6 +6348,12 @@ window.addEventListener('keydown',e=>{
     advance();
     return;
   }
+  // If an element with role="button" is focused, trigger a click on Enter or Space
+  if((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.getAttribute('role') === 'button'){
+    e.preventDefault();
+    document.activeElement.click();
+    return;
+  }
   if(e.key==='a'||e.key==='ArrowLeft')K.l=1;
   if(e.key==='d'||e.key==='ArrowRight')K.r=1;
   if(e.key==='w'||e.key==='ArrowUp')K.j=1;

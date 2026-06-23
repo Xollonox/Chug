@@ -1,0 +1,3 @@
+## 2024-06-23 - [Accessibility Pattern: Interactive Divs]
+**Learning:** Many interactive elements are implemented as <div> tags with onclick handlers. To ensure keyboard accessibility, add role="button", tabindex="0", and aria-label attributes, and ensure game.js contains a global keydown listener for 'Enter' and 'Space' keys.
+**Action:** Always check for non-semantic buttons and add appropriate ARIA roles and keyboard listeners to maintain accessibility.
