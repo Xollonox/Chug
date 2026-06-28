@@ -15082,7 +15082,7 @@ magic: [],
       const upgrade = item.category !== 'upgrade'
         ? '<div class="armory-upgrade-stars">' + upgradeStars(item.id) + '</div>'
         : '';
-      return '<div class="armory-item-row ' + (selected ? 'selected ' : '') + (owned ? 'owned ' : '') + (equipped ? 'equipped ' : '') + (locked ? 'locked ' : '') + '" data-item="' + item.id + '">' +
+      return '<div class="armory-item-row ' + (selected ? 'selected ' : '') + (owned ? 'owned ' : '') + (equipped ? 'equipped ' : '') + (locked ? 'locked ' : '') + '" data-item="' + item.id + '" role="button" tabindex="0">' +
         '<div class="armory-item-icon">' + item.icon + '</div>' +
         '<div class="armory-item-main">' +
           '<div class="armory-item-name">' + escapeHtml(item.name) + '</div>' +
@@ -16439,3 +16439,14 @@ function applyArmoryBonusesToPlayer(){
     }
   });
 })();
+
+/* ════ Accessibility ════ */
+window.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    const el = document.activeElement;
+    if (el && el.getAttribute('role') === 'button') {
+      e.preventDefault();
+      el.click();
+    }
+  }
+});
