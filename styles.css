@@ -49,6 +49,12 @@
 
 /* ══ RESET ══ */
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
+*:focus-visible {
+  outline: 2px solid var(--gold-light, #f0c040);
+  outline-offset: 2px;
+}
+
 html, body {
   width: 100%; height: 100%; overflow: hidden;
   background: var(--bg-void); color: var(--white);

@@ -1,0 +1,3 @@
+## 2025-05-15 - Improving Accessibility in Vanilla JS Apps
+**Learning:** In projects where interactive elements are implemented as `div` tags with `onclick` handlers, they are invisible to keyboard users. Simply adding `role="button"` and `tabindex="0"` is not enough; a global keydown listener is required to bridge the gap for "Enter" and "Space" keys because browsers don't automatically trigger clicks on `div`s.
+**Action:** Always add `role="button"` + `tabindex="0"` to interactive containers, coupled with a CSS `:focus-visible` outline and a JS event listener that converts keyboard activation into click events.

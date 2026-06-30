@@ -247,7 +247,7 @@
     <div class="chapter-divider"></div>
 
     <!-- ACT I -->
-    <div class="chapter-card" id="act1-card" onclick="openAct(1)">
+    <div class="chapter-card" id="act1-card" role="button" tabindex="0" onclick="openAct(1)">
       <div class="chap-num">I</div>
       <div class="chap-info">
         <div class="chap-title">ACT I — SHADOW OF FAME</div>
@@ -270,7 +270,7 @@
     </div>
 
     <!-- ACT II -->
-    <div class="chapter-card locked" id="act2-card" onclick="openAct(2)">
+    <div class="chapter-card locked" id="act2-card" role="button" tabindex="0" onclick="openAct(2)">
       <div class="chap-num dim" id="act2-num">II</div>
       <div class="chap-info">
         <div class="chap-title" id="act2-title">ACT II — AFTERIMAGE</div>
@@ -295,7 +295,7 @@
     <div class="chapter-divider"></div>
 
     <!-- Chapter I -->
-    <div class="chapter-card" id="chap1-card" onclick="startChapter(1)">
+    <div class="chapter-card" id="chap1-card" role="button" tabindex="0" onclick="startChapter(1)">
       <div class="chap-num" style="font-size:clamp(20px,4vw,30px);">CH.I</div>
       <div class="chap-info">
         <div class="chap-title">THE FALL</div>
@@ -312,7 +312,7 @@
     </div>
 
     <!-- Chapter II -->
-    <div class="chapter-card locked" id="chap2-card" onclick="startChapter(2)">
+    <div class="chapter-card locked" id="chap2-card" role="button" tabindex="0" onclick="startChapter(2)">
       <div class="chap-num dim" id="chap2-num" style="font-size:clamp(20px,4vw,30px);">CH.II</div>
       <div class="chap-info">
         <div class="chap-title" id="chap2-title">VANISHED</div>
@@ -340,7 +340,7 @@
     <div class="chapter-divider"></div>
 
     <!-- Chapter III -->
-    <div class="chapter-card locked" id="chap3-card" onclick="startChapter(3)">
+    <div class="chapter-card locked" id="chap3-card" role="button" tabindex="0" onclick="startChapter(3)">
       <div class="chap-num dim" id="chap3-num" style="font-size:clamp(20px,4vw,30px);">CH.III</div>
       <div class="chap-info">
         <div class="chap-title" id="chap3-title">AFTERIMAGE</div>
@@ -372,7 +372,7 @@
 
     <!-- MISSION BOARD -->
     <div class="camp-section" id="campMissionSection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campMissionBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" role="button" tabindex="0" onclick="toggleCampSection('campMissionBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">📋</span></div>
           <div class="camp-section-text">
@@ -388,7 +388,7 @@
 
     <!-- STRATEGY -->
     <div class="camp-section" id="campStrategySection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campStrategyBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" role="button" tabindex="0" onclick="toggleCampSection('campStrategyBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">🗺</span></div>
           <div class="camp-section-text">
@@ -407,7 +407,7 @@
 
     <!-- ROSTER OVERVIEW -->
     <div class="camp-section" id="campRosterSection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campRosterBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" role="button" tabindex="0" onclick="toggleCampSection('campRosterBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">👥</span></div>
           <div class="camp-section-text">
@@ -423,7 +423,7 @@
 
     <!-- RECOVERY AREA -->
     <div class="camp-section" id="campRecoverySection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campRecoveryBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" role="button" tabindex="0" onclick="toggleCampSection('campRecoveryBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">💚</span></div>
           <div class="camp-section-text">
@@ -488,7 +488,7 @@
 
     <!-- CAMP EVENTS -->
     <div class="camp-section" id="campEventsSection" data-open="true">
-      <div class="camp-section-head" onclick="toggleCampSection('campEventsBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
+      <div class="camp-section-head" role="button" tabindex="0" onclick="toggleCampSection('campEventsBody');this.closest('.camp-section').dataset.open=(this.closest('.camp-section').dataset.open==='true'?'false':'true')">
         <div class="camp-section-left">
           <div class="camp-section-icon-wrap"><span class="camp-section-icon">💬</span></div>
           <div class="camp-section-text">
@@ -603,7 +603,7 @@
         <div class="squad-section-pill" id="squadMainStatusPill">ACTIVE</div>
       </div>
 
-      <div class="squad-slot main-slot" id="squadMainSlot" onclick="openSquadPicker('main')">
+      <div class="squad-slot main-slot" id="squadMainSlot" role="button" tabindex="0" onclick="openSquadPicker('main')">
         <div class="squad-slot-mark">01</div>
 
         <div class="squad-portrait-wrap">
@@ -641,7 +641,7 @@
       </div>
 
       <div class="squad-support-stack">
-        <div class="squad-slot support-slot" id="squadSupport0" onclick="openSquadPicker('support',0)">
+        <div class="squad-slot support-slot" id="squadSupport0" role="button" tabindex="0" onclick="openSquadPicker('support',0)">
           <div class="squad-slot-mark">I</div>
 
           <div class="squad-portrait-wrap">
@@ -665,7 +665,7 @@
           </div>
         </div>
 
-        <div class="squad-slot support-slot" id="squadSupport1" onclick="openSquadPicker('support',1)">
+        <div class="squad-slot support-slot" id="squadSupport1" role="button" tabindex="0" onclick="openSquadPicker('support',1)">
           <div class="squad-slot-mark">II</div>
 
           <div class="squad-portrait-wrap">
