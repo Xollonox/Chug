@@ -6342,6 +6342,12 @@ window.K={l:0,r:0,j:0,a:0,k:0,g:0,t:0,range:0,rage:0}; const K=window.K;
 // In addition to the Space bar, allow the Enter key to advance story dialogue.
 // This makes it more intuitive for users on desktop keyboards.
 window.addEventListener('keydown',e=>{
+  // Support global activation for elements with role="button"
+  if((e.key==='Enter' || e.key===' ') && e.target.getAttribute('role')==='button'){
+    e.preventDefault();
+    e.target.click();
+    return;
+  }
   // Advance dialogue when the Space bar or Enter key is pressed during story scenes
   if((e.code==='Space' || e.key==='Enter') && gameState==='story'){
     e.preventDefault();
