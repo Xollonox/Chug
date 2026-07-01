@@ -1,0 +1,3 @@
+## 2025-05-14 - Keyboard Accessibility for Div-based UI
+**Learning:** In projects where interactivity is built using `div` elements with `onclick` handlers, full accessibility requires a three-pronged approach: adding `role="button"` for screen readers, `tabindex="0"` for keyboard focusability, and a global keyboard listener (supporting 'Enter' and ' ') to trigger the click handlers. Using `:focus-visible` ensures that these newly focusable elements have clear visual feedback for keyboard users without adding clutter for mouse users.
+**Action:** Always check for `div` elements with `onclick` or `addEventListener('click')` and ensure they have the necessary ARIA roles, tab indices, and keyboard event support.

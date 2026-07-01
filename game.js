@@ -4540,7 +4540,7 @@ function openSquadPicker(mode, slotIndex) {
         currentSupports.some((s, i) => s === r.id && i !== _pickerSlot)
       );
       return `<div class="picker-row${isCurrent?' selected':''}${alreadyUsed?' unavailable':''}"
-                   onclick="pickSquadMember('${r.id}')">
+                   onclick="pickSquadMember('${r.id}')" role="button" tabindex="0">
         <div class="picker-icon">${r.icon||'?'}</div>
         <div class="picker-info">
           <div class="picker-name">${r.name||r.id}</div>
@@ -4554,7 +4554,7 @@ function openSquadPicker(mode, slotIndex) {
   // If support slot is filled, add a "Remove" entry
   if (mode === 'support' && currentSupports[_pickerSlot]) {
     list.innerHTML += `<div class="picker-row" style="border-left:3px solid var(--red);margin-top:6px;"
-        onclick="pickSquadMember(null)">
+        onclick="pickSquadMember(null)" role="button" tabindex="0">
       <div class="picker-icon" style="font-size:18px;">✕</div>
       <div class="picker-info"><div class="picker-name" style="color:rgba(255,80,80,0.8)">REMOVE</div></div>
     </div>`;
@@ -6346,6 +6346,14 @@ window.addEventListener('keydown',e=>{
   if((e.code==='Space' || e.key==='Enter') && gameState==='story'){
     e.preventDefault();
     advance();
+    return;
+  }
+
+  // Support keyboard activation for custom button-like elements (divs with role="button")
+  if((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.getAttribute('role') === 'button'){
+    // Prevent scrolling when pressing Space on a button
+    if(e.key === ' ') e.preventDefault();
+    document.activeElement.click();
     return;
   }
   if(e.key==='a'||e.key==='ArrowLeft')K.l=1;
@@ -12470,6 +12478,8 @@ function selectWmWorld(wid){
       card.className = 'wm-ch-card' +
         (isLocked ? ' wm-ch-locked' : '') +
         (isActive ? ' wm-ch-active' : '');
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
 
       card.innerHTML = `
         <div class="wm-ch-head">
@@ -15082,7 +15092,7 @@ magic: [],
       const upgrade = item.category !== 'upgrade'
         ? '<div class="armory-upgrade-stars">' + upgradeStars(item.id) + '</div>'
         : '';
-      return '<div class="armory-item-row ' + (selected ? 'selected ' : '') + (owned ? 'owned ' : '') + (equipped ? 'equipped ' : '') + (locked ? 'locked ' : '') + '" data-item="' + item.id + '">' +
+      return '<div class="armory-item-row ' + (selected ? 'selected ' : '') + (owned ? 'owned ' : '') + (equipped ? 'equipped ' : '') + (locked ? 'locked ' : '') + '" data-item="' + item.id + '" role="button" tabindex="0">' +
         '<div class="armory-item-icon">' + item.icon + '</div>' +
         '<div class="armory-item-main">' +
           '<div class="armory-item-name">' + escapeHtml(item.name) + '</div>' +
@@ -16054,7 +16064,7 @@ function applyArmoryBonusesToPlayer(){
         const bonusText = mode === 'support'
           ? formatSupportBonusFromValues((window.SQUAD_SUPPORT_BONUSES || {})[r.id])
           : ((r.role || 'Lead fighter') + ' · Main roster selection');
-        return '<div class="picker-row' + (isCurrent ? ' selected' : '') + (alreadyUsed ? ' unavailable' : '') + '" onclick="pickSquadMember(\'' + esc(r.id) + '\')">' +
+        return '<div class="picker-row' + (isCurrent ? ' selected' : '') + (alreadyUsed ? ' unavailable' : '') + '" onclick="pickSquadMember(\'' + esc(r.id) + '\')" role="button" tabindex="0">' +
             '<div class="picker-icon-wrap"><div class="picker-icon">' + esc(r.icon || '?') + '</div></div>' +
             '<div class="picker-info">' +
               '<div class="picker-name">' + esc(r.name || r.id) + '</div>' +
@@ -16067,7 +16077,7 @@ function applyArmoryBonusesToPlayer(){
     }
 
     if (mode === 'support' && currentSupports[_pickerSlot]) {
-      list.innerHTML += '<div class="picker-row remove-row" onclick="pickSquadMember(null)">' +
+      list.innerHTML += '<div class="picker-row remove-row" onclick="pickSquadMember(null)" role="button" tabindex="0">' +
         '<div class="picker-icon-wrap"><div class="picker-icon" style="font-size:18px;">✕</div></div>' +
         '<div class="picker-info">' +
           '<div class="picker-name">REMOVE SUPPORT</div>' +
